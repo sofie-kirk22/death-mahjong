@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DeathMahjong")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9ed14149e8749fe8fc187871380c555e9cd3a60")]
 [assembly: System.Reflection.AssemblyProductAttribute("DeathMahjong")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DeathMahjong")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

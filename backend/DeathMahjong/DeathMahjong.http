@@ -1,0 +1,6 @@
+@DeathMahjong_HostAddress = http://localhost:5156
+
+GET {{DeathMahjong_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

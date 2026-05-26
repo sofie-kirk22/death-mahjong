@@ -10,6 +10,7 @@ public class GameRoomStore
 
     public GameRoom CreateGameRoom(string hostPlayerName, bool hardCoreMode)
     {
+        Console.WriteLine($"Creating game room with host player: {hostPlayerName}, hardCoreMode: {hardCoreMode}");
         var gameRoom = new GameRoom
         {
             JoinCode = GenerateJoinCode(),
@@ -53,6 +54,23 @@ public class GameRoomStore
 
     public void RemoveGameRoom(string roomId)
     {
+        // Remove the room entry
         _roomsById.Remove(roomId);
+
+        // Also remove any join-code -> roomId mapping to avoid leaving stale entries
+        string? codeKey = null;
+        foreach (var kvp in _roomIdsByCode)
+        {
+            if (kvp.Value == roomId)
+            {
+                codeKey = kvp.Key;
+                break;
+            }
+        }
+
+        if (codeKey != null)
+        {
+            _roomIdsByCode.Remove(codeKey);
+        }
     }
 }

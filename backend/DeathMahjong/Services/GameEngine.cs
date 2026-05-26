@@ -20,6 +20,7 @@ public class GameEngine
     */
     public List<Tile> GenerateTiles()
     {
+        Console.WriteLine("Generating tiles...");
         var tiles = new List<Tile>();
 
         tiles.Add(new Tile
@@ -165,7 +166,7 @@ public class GameEngine
         var drinks = (int)Math.Ceiling((value * sameTileDrawCount) / 2.0); 
 
         return hardCoreMode 
-            ? drinks * 2 
+            ? drinks 
             : Math.Min(drinks, 14);
     }
 

@@ -1,0 +1,954 @@
+[
+  {
+    "id": "bamboo-bamboo-1-1",
+    "name": "Bamboo 1",
+    "tileType": "Bamboo",
+    "value": 1,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-1-2",
+    "name": "Bamboo 1",
+    "tileType": "Bamboo",
+    "value": 1,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-1-3",
+    "name": "Bamboo 1",
+    "tileType": "Bamboo",
+    "value": 1,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-1-4",
+    "name": "Bamboo 1",
+    "tileType": "Bamboo",
+    "value": 1,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-2-1",
+    "name": "Bamboo 2",
+    "tileType": "Bamboo",
+    "value": 2,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-2-2",
+    "name": "Bamboo 2",
+    "tileType": "Bamboo",
+    "value": 2,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-2-3",
+    "name": "Bamboo 2",
+    "tileType": "Bamboo",
+    "value": 2,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-2-4",
+    "name": "Bamboo 2",
+    "tileType": "Bamboo",
+    "value": 2,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-3-1",
+    "name": "Bamboo 3",
+    "tileType": "Bamboo",
+    "value": 3,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-3-2",
+    "name": "Bamboo 3",
+    "tileType": "Bamboo",
+    "value": 3,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-3-3",
+    "name": "Bamboo 3",
+    "tileType": "Bamboo",
+    "value": 3,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-3-4",
+    "name": "Bamboo 3",
+    "tileType": "Bamboo",
+    "value": 3,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-4-1",
+    "name": "Bamboo 4",
+    "tileType": "Bamboo",
+    "value": 4,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-4-2",
+    "name": "Bamboo 4",
+    "tileType": "Bamboo",
+    "value": 4,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-4-3",
+    "name": "Bamboo 4",
+    "tileType": "Bamboo",
+    "value": 4,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-4-4",
+    "name": "Bamboo 4",
+    "tileType": "Bamboo",
+    "value": 4,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-5-1",
+    "name": "Bamboo 5",
+    "tileType": "Bamboo",
+    "value": 5,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-5-2",
+    "name": "Bamboo 5",
+    "tileType": "Bamboo",
+    "value": 5,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-5-3",
+    "name": "Bamboo 5",
+    "tileType": "Bamboo",
+    "value": 5,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-5-4",
+    "name": "Bamboo 5",
+    "tileType": "Bamboo",
+    "value": 5,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-6-1",
+    "name": "Bamboo 6",
+    "tileType": "Bamboo",
+    "value": 6,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-6-2",
+    "name": "Bamboo 6",
+    "tileType": "Bamboo",
+    "value": 6,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-6-3",
+    "name": "Bamboo 6",
+    "tileType": "Bamboo",
+    "value": 6,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-6-4",
+    "name": "Bamboo 6",
+    "tileType": "Bamboo",
+    "value": 6,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-7-1",
+    "name": "Bamboo 7",
+    "tileType": "Bamboo",
+    "value": 7,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-7-2",
+    "name": "Bamboo 7",
+    "tileType": "Bamboo",
+    "value": 7,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-7-3",
+    "name": "Bamboo 7",
+    "tileType": "Bamboo",
+    "value": 7,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-7-4",
+    "name": "Bamboo 7",
+    "tileType": "Bamboo",
+    "value": 7,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-8-1",
+    "name": "Bamboo 8",
+    "tileType": "Bamboo",
+    "value": 8,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-8-2",
+    "name": "Bamboo 8",
+    "tileType": "Bamboo",
+    "value": 8,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-8-3",
+    "name": "Bamboo 8",
+    "tileType": "Bamboo",
+    "value": 8,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-8-4",
+    "name": "Bamboo 8",
+    "tileType": "Bamboo",
+    "value": 8,
+    "copy": 4
+  },
+  {
+    "id": "bamboo-bamboo-9-1",
+    "name": "Bamboo 9",
+    "tileType": "Bamboo",
+    "value": 9,
+    "copy": 1
+  },
+  {
+    "id": "bamboo-bamboo-9-2",
+    "name": "Bamboo 9",
+    "tileType": "Bamboo",
+    "value": 9,
+    "copy": 2
+  },
+  {
+    "id": "bamboo-bamboo-9-3",
+    "name": "Bamboo 9",
+    "tileType": "Bamboo",
+    "value": 9,
+    "copy": 3
+  },
+  {
+    "id": "bamboo-bamboo-9-4",
+    "name": "Bamboo 9",
+    "tileType": "Bamboo",
+    "value": 9,
+    "copy": 4
+  },
+  {
+    "id": "character-character-1-1",
+    "name": "Character 1",
+    "tileType": "Character",
+    "value": 1,
+    "copy": 1
+  },
+  {
+    "id": "character-character-1-2",
+    "name": "Character 1",
+    "tileType": "Character",
+    "value": 1,
+    "copy": 2
+  },
+  {
+    "id": "character-character-1-3",
+    "name": "Character 1",
+    "tileType": "Character",
+    "value": 1,
+    "copy": 3
+  },
+  {
+    "id": "character-character-1-4",
+    "name": "Character 1",
+    "tileType": "Character",
+    "value": 1,
+    "copy": 4
+  },
+  {
+    "id": "character-character-2-1",
+    "name": "Character 2",
+    "tileType": "Character",
+    "value": 2,
+    "copy": 1
+  },
+  {
+    "id": "character-character-2-2",
+    "name": "Character 2",
+    "tileType": "Character",
+    "value": 2,
+    "copy": 2
+  },
+  {
+    "id": "character-character-2-3",
+    "name": "Character 2",
+    "tileType": "Character",
+    "value": 2,
+    "copy": 3
+  },
+  {
+    "id": "character-character-2-4",
+    "name": "Character 2",
+    "tileType": "Character",
+    "value": 2,
+    "copy": 4
+  },
+  {
+    "id": "character-character-3-1",
+    "name": "Character 3",
+    "tileType": "Character",
+    "value": 3,
+    "copy": 1
+  },
+  {
+    "id": "character-character-3-2",
+    "name": "Character 3",
+    "tileType": "Character",
+    "value": 3,
+    "copy": 2
+  },
+  {
+    "id": "character-character-3-3",
+    "name": "Character 3",
+    "tileType": "Character",
+    "value": 3,
+    "copy": 3
+  },
+  {
+    "id": "character-character-3-4",
+    "name": "Character 3",
+    "tileType": "Character",
+    "value": 3,
+    "copy": 4
+  },
+  {
+    "id": "character-character-4-1",
+    "name": "Character 4",
+    "tileType": "Character",
+    "value": 4,
+    "copy": 1
+  },
+  {
+    "id": "character-character-4-2",
+    "name": "Character 4",
+    "tileType": "Character",
+    "value": 4,
+    "copy": 2
+  },
+  {
+    "id": "character-character-4-3",
+    "name": "Character 4",
+    "tileType": "Character",
+    "value": 4,
+    "copy": 3
+  },
+  {
+    "id": "character-character-4-4",
+    "name": "Character 4",
+    "tileType": "Character",
+    "value": 4,
+    "copy": 4
+  },
+  {
+    "id": "character-character-5-1",
+    "name": "Character 5",
+    "tileType": "Character",
+    "value": 5,
+    "copy": 1
+  },
+  {
+    "id": "character-character-5-2",
+    "name": "Character 5",
+    "tileType": "Character",
+    "value": 5,
+    "copy": 2
+  },
+  {
+    "id": "character-character-5-3",
+    "name": "Character 5",
+    "tileType": "Character",
+    "value": 5,
+    "copy": 3
+  },
+  {
+    "id": "character-character-5-4",
+    "name": "Character 5",
+    "tileType": "Character",
+    "value": 5,
+    "copy": 4
+  },
+  {
+    "id": "character-character-6-1",
+    "name": "Character 6",
+    "tileType": "Character",
+    "value": 6,
+    "copy": 1
+  },
+  {
+    "id": "character-character-6-2",
+    "name": "Character 6",
+    "tileType": "Character",
+    "value": 6,
+    "copy": 2
+  },
+  {
+    "id": "character-character-6-3",
+    "name": "Character 6",
+    "tileType": "Character",
+    "value": 6,
+    "copy": 3
+  },
+  {
+    "id": "character-character-6-4",
+    "name": "Character 6",
+    "tileType": "Character",
+    "value": 6,
+    "copy": 4
+  },
+  {
+    "id": "character-character-7-1",
+    "name": "Character 7",
+    "tileType": "Character",
+    "value": 7,
+    "copy": 1
+  },
+  {
+    "id": "character-character-7-2",
+    "name": "Character 7",
+    "tileType": "Character",
+    "value": 7,
+    "copy": 2
+  },
+  {
+    "id": "character-character-7-3",
+    "name": "Character 7",
+    "tileType": "Character",
+    "value": 7,
+    "copy": 3
+  },
+  {
+    "id": "character-character-7-4",
+    "name": "Character 7",
+    "tileType": "Character",
+    "value": 7,
+    "copy": 4
+  },
+  {
+    "id": "character-character-8-1",
+    "name": "Character 8",
+    "tileType": "Character",
+    "value": 8,
+    "copy": 1
+  },
+  {
+    "id": "character-character-8-2",
+    "name": "Character 8",
+    "tileType": "Character",
+    "value": 8,
+    "copy": 2
+  },
+  {
+    "id": "character-character-8-3",
+    "name": "Character 8",
+    "tileType": "Character",
+    "value": 8,
+    "copy": 3
+  },
+  {
+    "id": "character-character-8-4",
+    "name": "Character 8",
+    "tileType": "Character",
+    "value": 8,
+    "copy": 4
+  },
+  {
+    "id": "character-character-9-1",
+    "name": "Character 9",
+    "tileType": "Character",
+    "value": 9,
+    "copy": 1
+  },
+  {
+    "id": "character-character-9-2",
+    "name": "Character 9",
+    "tileType": "Character",
+    "value": 9,
+    "copy": 2
+  },
+  {
+    "id": "character-character-9-3",
+    "name": "Character 9",
+    "tileType": "Character",
+    "value": 9,
+    "copy": 3
+  },
+  {
+    "id": "character-character-9-4",
+    "name": "Character 9",
+    "tileType": "Character",
+    "value": 9,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-1-1",
+    "name": "Dot 1",
+    "tileType": "Dot",
+    "value": 1,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-1-2",
+    "name": "Dot 1",
+    "tileType": "Dot",
+    "value": 1,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-1-3",
+    "name": "Dot 1",
+    "tileType": "Dot",
+    "value": 1,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-1-4",
+    "name": "Dot 1",
+    "tileType": "Dot",
+    "value": 1,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-2-1",
+    "name": "Dot 2",
+    "tileType": "Dot",
+    "value": 2,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-2-2",
+    "name": "Dot 2",
+    "tileType": "Dot",
+    "value": 2,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-2-3",
+    "name": "Dot 2",
+    "tileType": "Dot",
+    "value": 2,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-2-4",
+    "name": "Dot 2",
+    "tileType": "Dot",
+    "value": 2,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-3-1",
+    "name": "Dot 3",
+    "tileType": "Dot",
+    "value": 3,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-3-2",
+    "name": "Dot 3",
+    "tileType": "Dot",
+    "value": 3,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-3-3",
+    "name": "Dot 3",
+    "tileType": "Dot",
+    "value": 3,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-3-4",
+    "name": "Dot 3",
+    "tileType": "Dot",
+    "value": 3,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-4-1",
+    "name": "Dot 4",
+    "tileType": "Dot",
+    "value": 4,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-4-2",
+    "name": "Dot 4",
+    "tileType": "Dot",
+    "value": 4,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-4-3",
+    "name": "Dot 4",
+    "tileType": "Dot",
+    "value": 4,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-4-4",
+    "name": "Dot 4",
+    "tileType": "Dot",
+    "value": 4,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-5-1",
+    "name": "Dot 5",
+    "tileType": "Dot",
+    "value": 5,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-5-2",
+    "name": "Dot 5",
+    "tileType": "Dot",
+    "value": 5,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-5-3",
+    "name": "Dot 5",
+    "tileType": "Dot",
+    "value": 5,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-5-4",
+    "name": "Dot 5",
+    "tileType": "Dot",
+    "value": 5,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-6-1",
+    "name": "Dot 6",
+    "tileType": "Dot",
+    "value": 6,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-6-2",
+    "name": "Dot 6",
+    "tileType": "Dot",
+    "value": 6,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-6-3",
+    "name": "Dot 6",
+    "tileType": "Dot",
+    "value": 6,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-6-4",
+    "name": "Dot 6",
+    "tileType": "Dot",
+    "value": 6,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-7-1",
+    "name": "Dot 7",
+    "tileType": "Dot",
+    "value": 7,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-7-2",
+    "name": "Dot 7",
+    "tileType": "Dot",
+    "value": 7,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-7-3",
+    "name": "Dot 7",
+    "tileType": "Dot",
+    "value": 7,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-7-4",
+    "name": "Dot 7",
+    "tileType": "Dot",
+    "value": 7,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-8-1",
+    "name": "Dot 8",
+    "tileType": "Dot",
+    "value": 8,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-8-2",
+    "name": "Dot 8",
+    "tileType": "Dot",
+    "value": 8,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-8-3",
+    "name": "Dot 8",
+    "tileType": "Dot",
+    "value": 8,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-8-4",
+    "name": "Dot 8",
+    "tileType": "Dot",
+    "value": 8,
+    "copy": 4
+  },
+  {
+    "id": "dot-dot-9-1",
+    "name": "Dot 9",
+    "tileType": "Dot",
+    "value": 9,
+    "copy": 1
+  },
+  {
+    "id": "dot-dot-9-2",
+    "name": "Dot 9",
+    "tileType": "Dot",
+    "value": 9,
+    "copy": 2
+  },
+  {
+    "id": "dot-dot-9-3",
+    "name": "Dot 9",
+    "tileType": "Dot",
+    "value": 9,
+    "copy": 3
+  },
+  {
+    "id": "dot-dot-9-4",
+    "name": "Dot 9",
+    "tileType": "Dot",
+    "value": 9,
+    "copy": 4
+  },
+  {
+    "id": "wind-east-wind-1",
+    "name": "East Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 1
+  },
+  {
+    "id": "wind-east-wind-2",
+    "name": "East Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 2
+  },
+  {
+    "id": "wind-east-wind-3",
+    "name": "East Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 3
+  },
+  {
+    "id": "wind-east-wind-4",
+    "name": "East Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 4
+  },
+  {
+    "id": "wind-south-wind-1",
+    "name": "South Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 1
+  },
+  {
+    "id": "wind-south-wind-2",
+    "name": "South Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 2
+  },
+  {
+    "id": "wind-south-wind-3",
+    "name": "South Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 3
+  },
+  {
+    "id": "wind-south-wind-4",
+    "name": "South Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 4
+  },
+  {
+    "id": "wind-west-wind-1",
+    "name": "West Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 1
+  },
+  {
+    "id": "wind-west-wind-2",
+    "name": "West Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 2
+  },
+  {
+    "id": "wind-west-wind-3",
+    "name": "West Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 3
+  },
+  {
+    "id": "wind-west-wind-4",
+    "name": "West Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 4
+  },
+  {
+    "id": "wind-north-wind-1",
+    "name": "North Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 1
+  },
+  {
+    "id": "wind-north-wind-2",
+    "name": "North Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 2
+  },
+  {
+    "id": "wind-north-wind-3",
+    "name": "North Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 3
+  },
+  {
+    "id": "wind-north-wind-4",
+    "name": "North Wind",
+    "tileType": "Wind",
+    "value": 14,
+    "copy": 4
+  },
+  {
+    "id": "dragon-red-dragon-1",
+    "name": "Red Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 1
+  },
+  {
+    "id": "dragon-red-dragon-2",
+    "name": "Red Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 2
+  },
+  {
+    "id": "dragon-red-dragon-3",
+    "name": "Red Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 3
+  },
+  {
+    "id": "dragon-red-dragon-4",
+    "name": "Red Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 4
+  },
+  {
+    "id": "dragon-green-dragon-1",
+    "name": "Green Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 1
+  },
+  {
+    "id": "dragon-green-dragon-2",
+    "name": "Green Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 2
+  },
+  {
+    "id": "dragon-green-dragon-3",
+    "name": "Green Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 3
+  },
+  {
+    "id": "dragon-green-dragon-4",
+    "name": "Green Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 4
+  },
+  {
+    "id": "dragon-white-dragon-1",
+    "name": "White Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 1
+  },
+  {
+    "id": "dragon-white-dragon-2",
+    "name": "White Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 2
+  },
+  {
+    "id": "dragon-white-dragon-3",
+    "name": "White Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 3
+  },
+  {
+    "id": "dragon-white-dragon-4",
+    "name": "White Dragon",
+    "tileType": "Dragon",
+    "value": 28,
+    "copy": 4
+  }
+]

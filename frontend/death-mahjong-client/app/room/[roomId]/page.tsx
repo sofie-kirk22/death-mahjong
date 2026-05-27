@@ -17,7 +17,7 @@ export default function RoomPage() {
 
   const roomId = params.roomId;
 
-  const [room, setRoom] = useState<any>(null);
+  const [gameRoom, setRoom] = useState<any>(null);
   const [error, setError] = useState("");
 
   console.log("roomId", roomId);
@@ -102,7 +102,7 @@ export default function RoomPage() {
     }
   }
 
-  if (!room) {
+  if (!gameRoom) {
     return <main className="p-8">Loading room...</main>;
   }
 
@@ -118,14 +118,14 @@ export default function RoomPage() {
 
       <section className="rounded-2xl border p-4">
         <p className="text-sm text-gray-500">Join code</p>
-        <p className="text-4xl font-bold tracking-widest">{room.joinCode}</p>
+        <p className="text-4xl font-bold tracking-widest">{gameRoom.joinCode}</p>
       </section>
 
       <section className="rounded-2xl border p-4">
         <h2 className="mb-3 text-xl font-semibold">Players</h2>
 
         <ul className="space-y-2">
-          {room.players.map((player: any) => (
+          {gameRoom.players.map((player: any) => (
             <li key={player.id} className="flex items-center gap-2">
               <span
                 className="h-4 w-4 rounded-full"

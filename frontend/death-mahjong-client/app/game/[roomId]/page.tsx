@@ -12,7 +12,7 @@ export default function GamePage() {
   console.log("roomId", roomId);
   console.log("params", params);
 
-  const [room, setRoom] = useState<any>(null);
+  const [gameRoom, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
 
@@ -39,7 +39,7 @@ export default function GamePage() {
       try {
         connection.on("TileDrawn", (payload) => {
           if (!cancelled) {
-            setRoom(payload.gameRoom ?? payload.room);
+            setRoom(payload.gameRoom);
             setLatestMove(payload.move);
           }
         });
@@ -95,23 +95,23 @@ export default function GamePage() {
 
       const result = await drawTile(roomId, playerId, tileId);
 
-      setRoom(result.gameRoom ?? result.room);
+      setRoom(result.gameRoom);
       setLatestMove(result.move);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not draw tile");
     }
   }
 
-  if (!room) {
+  if (!gameRoom) {
     return <main className="p-8">Loading game...</main>;
   }
 
   const latestMovePlayer =
-  latestMove && room?.players
-    ? room.players.find((player: any) => player.id === latestMove.playerId)
+  latestMove && gameRoom?.players
+    ? gameRoom.players.find((player: any) => player.id === latestMove.playerId)
     : null;
   
-  const currentPlayer = room.players[room.currentPlayerIndex];
+  const currentPlayer = gameRoom.players[gameRoom.currentPlayerIndex];
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-8">
@@ -142,7 +142,7 @@ export default function GamePage() {
       )}
 
       <section className="grid grid-cols-4 gap-3 rounded-2xl border p-4">
-        {room.tiles.map((tile: any) => (
+        {gameRoom.tiles.map((tile: any) => (
           <button
             key={tile.id}
             disabled={tile.isDrawn}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.SignalR;
-using DeathMahjong.Api.Services;
 
 namespace DeathMahjong.Api.Hubs;
 

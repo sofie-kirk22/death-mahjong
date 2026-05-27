@@ -10,7 +10,10 @@ export async function createRoom(hostName: string, hardcoreMode: boolean) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ hostName, hardcoreMode }),
+    body: JSON.stringify({
+      hostplayername: hostName,
+      hardcoreMode
+    }),
   });
 
   if (!response.ok) {

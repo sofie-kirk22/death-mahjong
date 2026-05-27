@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { drawTile, getRoom } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
 
-type GamePageProps = {
-  params: {
-    roomId: string;
-  };
-};
-
-export default function GamePage({ params }: GamePageProps) {
+export default function GamePage() {
+  const params = useParams<{ roomId: string }>();
+  const roomId = params.roomId;
+  
   const [room, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
@@ -18,7 +16,7 @@ export default function GamePage({ params }: GamePageProps) {
   useEffect(() => {
     async function loadRoom() {
       try {
-        const data = await getRoom(params.roomId);
+        const data = await getRoom(roomId);
         setRoom(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not load game");
@@ -26,14 +24,19 @@ export default function GamePage({ params }: GamePageProps) {
     }
 
     loadRoom();
-  }, [params.roomId]);
+  }, [roomId]);
 
   useEffect(() => {
     const connection = createGameHubConnection();
 
     async function connect() {
       await connection.start();
-      await connection.invoke("JoinRoomGroup", params.roomId);
+
+      if(!roomId) {
+        throw new Error("Missing roomId");
+      }
+      
+      await connection.invoke("JoinRoomGroup", roomId);
 
       connection.on("TileDrawn", (payload) => {
         setRoom(payload.room);
@@ -50,7 +53,7 @@ export default function GamePage({ params }: GamePageProps) {
     return () => {
       connection.stop();
     };
-  }, [params.roomId]);
+  }, [roomId]);
 
   async function handleDrawTile(tileId: string) {
     try {
@@ -62,7 +65,7 @@ export default function GamePage({ params }: GamePageProps) {
         throw new Error("Missing playerId");
       }
 
-      const result = await drawTile(params.roomId, playerId, tileId);
+      const result = await drawTile(roomId, playerId, tileId);
 
       setRoom(result.room);
       setLatestMove(result.move);

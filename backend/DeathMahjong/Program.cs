@@ -28,13 +28,14 @@ var app = builder.Build();
 
 app.UseCors("frontend");
 
-app.MapHub<GameHub>("hubs/gamehub");
+app.MapHub<GameHub>("/hubs/gamehub");
 
 app.MapPost("/api/gamerooms", (
     CreateRoomRequest request,
     GameRoomStore gameRoomStore
 ) =>
 {
+
     if (string.IsNullOrWhiteSpace(request.HostPlayerName))
     {
         return Results.BadRequest("Host player name is required.");

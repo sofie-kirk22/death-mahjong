@@ -49,7 +49,7 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-8 p-8">
-      <h1 className="text-3xl font-bold">Drinking Mahjong</h1>
+      <h1 className="text-3xl font-bold">Death Mahjong</h1>
 
       {error && (
         <div className="rounded-lg border border-red-300 p-3 text-red-700">
@@ -77,7 +77,7 @@ export default function HomePage() {
         </label>
 
         <button
-          className="rounded bg-black px-4 py-2 text-white"
+          className="rounded bg-black px-4 py-2 border border-white text-white"
           onClick={handleCreateRoom}
         >
           Create room
@@ -102,7 +102,7 @@ export default function HomePage() {
         />
 
         <button
-          className="rounded bg-black px-4 py-2 text-white"
+          className="rounded bg-black px-4 py-2 border border-white text-white"
           onClick={handleJoinRoom}
         >
           Join room

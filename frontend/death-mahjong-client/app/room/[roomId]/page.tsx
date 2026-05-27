@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getRoom, startGame } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type RoomPageProps = {
   params: {
@@ -11,8 +11,11 @@ type RoomPageProps = {
   };
 };
 
-export default function RoomPage({ params }: RoomPageProps) {
+export default function RoomPage() {
   const router = useRouter();
+  const params = useParams<{ roomId: string }>();
+
+  const roomId = params.roomId;
 
   const [room, setRoom] = useState<any>(null);
   const [error, setError] = useState("");
@@ -20,7 +23,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   useEffect(() => {
     async function loadRoom() {
       try {
-        const data = await getRoom(params.roomId);
+        const data = await getRoom(roomId);
         setRoom(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not load room");
@@ -28,14 +31,14 @@ export default function RoomPage({ params }: RoomPageProps) {
     }
 
     loadRoom();
-  }, [params.roomId]);
+  }, [roomId]);
 
   useEffect(() => {
     const connection = createGameHubConnection();
 
     async function connect() {
       await connection.start();
-      await connection.invoke("JoinRoomGroup", params.roomId);
+      await connection.invoke("JoinRoomGroup", roomId);
 
       connection.on("RoomUpdated", (updatedRoom) => {
         setRoom(updatedRoom);
@@ -52,7 +55,7 @@ export default function RoomPage({ params }: RoomPageProps) {
     return () => {
       connection.stop();
     };
-  }, [params.roomId, router]);
+  }, [roomId, router]);
 
   async function handleStartGame() {
     try {
@@ -62,9 +65,9 @@ export default function RoomPage({ params }: RoomPageProps) {
         throw new Error("Missing playerId");
       }
 
-      const startedRoom = await startGame(params.roomId, playerId);
+      const startedRoom = await startGame(roomId, playerId);
       setRoom(startedRoom);
-      router.push(`/game/${params.roomId}`);
+      router.push(`/game/${roomId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start game");
     }
@@ -106,7 +109,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       </section>
 
       <button
-        className="rounded bg-black px-4 py-2 text-white"
+        className="rounded bg-black px-4 py-2 border border-white text-white"
         onClick={handleStartGame}
       >
         Start game

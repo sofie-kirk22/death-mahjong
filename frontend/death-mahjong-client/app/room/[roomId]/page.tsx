@@ -36,55 +36,55 @@ export default function RoomPage() {
   }, [roomId]);
 
   useEffect(() => {
-  if (!roomId) return;
+    if (!roomId) return;
 
-  const connection = createGameHubConnection();
-  let isMounted = true;
+    const connection = createGameHubConnection();
+    let cancelled = false;
 
-  async function connect() {
-    try {
-      connection.on("RoomUpdated", (updatedRoom) => {
-        if (isMounted) {
-          setRoom(updatedRoom);
+    async function connect() {
+      try {
+        connection.on("RoomUpdated", (updatedRoom) => {
+          if (!cancelled) {
+            setRoom(updatedRoom);
+          }
+        });
+
+        connection.on("GameStarted", (startedRoom) => {
+          if (!cancelled) {
+            setRoom(startedRoom);
+            router.push(`/game/${startedRoom.id}`);
+          }
+        });
+
+        await connection.start();
+
+        if (cancelled) {
+          await connection.stop();
+          return;
         }
-      });
 
-      connection.on("GameStarted", (startedRoom) => {
-        if (isMounted) {
-          setRoom(startedRoom);
-          router.push(`/game/${startedRoom.id}`);
+        await connection.invoke("JoinRoomGroup", roomId);
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not connect to realtime server"
+          );
         }
-      });
-
-      await connection.start();
-
-      if (!isMounted) {
-        await connection.stop();
-        return;
-      }
-
-      await connection.invoke("JoinRoomGroup", roomId);
-    } catch (err) {
-      if (isMounted) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Could not connect to realtime server"
-        );
       }
     }
-  }
 
-  connect();
+    connect();
 
-  return () => {
-    isMounted = false;
+    return () => {
+      cancelled = true;
 
-    if (connection.state === "Connected") {
-      connection.stop();
-    }
-  };
-}, [roomId, router]);
+      if (connection.state === "Connected") {
+        connection.stop();
+      }
+    };
+  }, [roomId, router]);
 
   async function handleStartGame() {
     try {

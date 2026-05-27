@@ -11,7 +11,7 @@ export default function GamePage() {
 
   console.log("roomId", roomId);
   console.log("params", params);
-  
+
   const [room, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
@@ -30,31 +30,56 @@ export default function GamePage() {
   }, [roomId]);
 
   useEffect(() => {
+    if (!roomId) return;
+
     const connection = createGameHubConnection();
+    let cancelled = false;
 
     async function connect() {
-      await connection.start();
+      try {
+        connection.on("TileDrawn", (payload) => {
+          if (!cancelled) {
+            setRoom(payload.gameRoom ?? payload.room);
+            setLatestMove(payload.move);
+          }
+        });
 
-      if(!roomId) {
-        throw new Error("Missing roomId");
+        connection.on("InvalidMove", (message) => {
+          if (!cancelled) {
+            setError(message);
+          }
+        });
+
+        await connection.start();
+
+        if (cancelled) {
+          if (connection.state === "Connected") {
+            await connection.stop();
+          }
+          return;
+        }
+
+        await connection.invoke("JoinRoomGroup", roomId);
+      } catch (err) {
+        if (!cancelled) {
+          console.error(err);
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not connect to realtime server"
+          );
+        }
       }
-      
-      await connection.invoke("JoinRoomGroup", roomId);
-
-      connection.on("TileDrawn", (payload) => {
-        setRoom(payload.room);
-        setLatestMove(payload.move);
-      });
-
-      connection.on("InvalidMove", (message) => {
-        setError(message);
-      });
     }
 
     connect();
 
     return () => {
-      connection.stop();
+      cancelled = true;
+
+      if (connection.state === "Connected") {
+        connection.stop();
+      }
     };
   }, [roomId]);
 
@@ -70,7 +95,7 @@ export default function GamePage() {
 
       const result = await drawTile(roomId, playerId, tileId);
 
-      setRoom(result.room);
+      setRoom(result.gameRoom ?? result.room);
       setLatestMove(result.move);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not draw tile");
@@ -81,6 +106,11 @@ export default function GamePage() {
     return <main className="p-8">Loading game...</main>;
   }
 
+  const latestMovePlayer =
+  latestMove && room?.players
+    ? room.players.find((player: any) => player.id === latestMove.playerId)
+    : null;
+  
   const currentPlayer = room.players[room.currentPlayerIndex];
 
   return (
@@ -102,6 +132,7 @@ export default function GamePage() {
         <section className="rounded-2xl border p-4">
           <h2 className="text-xl font-semibold">Drink result</h2>
           <p>
+            {latestMovePlayer?.displayName ?? "Unknown player"}:{" "}
             {latestMove.tileName}: {latestMove.drinks} sips
           </p>
           <p className="text-sm text-gray-500">

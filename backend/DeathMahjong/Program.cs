@@ -120,7 +120,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     return Results.Ok(gameRoom);
 });
 
-app.MapPost("/api/gamerooms/{roomId}/draw", async (
+app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
     string roomId,
     DrawTileRequest request,
     GameRoomStore gameRoomStore,
@@ -135,6 +135,17 @@ app.MapPost("/api/gamerooms/{roomId}/draw", async (
     }
     try
     {
+        Console.WriteLine("---- DRAW REQUEST ----");
+        Console.WriteLine($"Room ID: {roomId}");
+        Console.WriteLine($"Request Player ID: {request.PlayerId}");
+        Console.WriteLine($"Current Player Index: {gameRoom.CurrentPlayerIndex}");
+        Console.WriteLine($"Current Player ID: {gameRoom.CurrentPlayerId}");
+        Console.WriteLine("Players:");
+        foreach (var player in gameRoom.Players)
+        {
+            Console.WriteLine($"- {player.DisplayName}: {player.Id}");
+        }
+        Console.WriteLine("----------------------");
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
 
         await hubContext.Clients.Group(roomId).SendAsync("TileDrawn", new

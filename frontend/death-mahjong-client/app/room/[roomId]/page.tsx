@@ -20,6 +20,8 @@ export default function RoomPage() {
   const [room, setRoom] = useState<any>(null);
   const [error, setError] = useState("");
 
+  console.log("roomId", roomId);
+
   useEffect(() => {
     async function loadRoom() {
       try {
@@ -34,28 +36,55 @@ export default function RoomPage() {
   }, [roomId]);
 
   useEffect(() => {
-    const connection = createGameHubConnection();
+  if (!roomId) return;
 
-    async function connect() {
-      await connection.start();
-      await connection.invoke("JoinRoomGroup", roomId);
+  const connection = createGameHubConnection();
+  let isMounted = true;
 
+  async function connect() {
+    try {
       connection.on("RoomUpdated", (updatedRoom) => {
-        setRoom(updatedRoom);
+        if (isMounted) {
+          setRoom(updatedRoom);
+        }
       });
 
       connection.on("GameStarted", (startedRoom) => {
-        setRoom(startedRoom);
-        router.push(`/game/${startedRoom.id}`);
+        if (isMounted) {
+          setRoom(startedRoom);
+          router.push(`/game/${startedRoom.id}`);
+        }
       });
+
+      await connection.start();
+
+      if (!isMounted) {
+        await connection.stop();
+        return;
+      }
+
+      await connection.invoke("JoinRoomGroup", roomId);
+    } catch (err) {
+      if (isMounted) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not connect to realtime server"
+        );
+      }
     }
+  }
 
-    connect();
+  connect();
 
-    return () => {
+  return () => {
+    isMounted = false;
+
+    if (connection.state === "Connected") {
       connection.stop();
-    };
-  }, [roomId, router]);
+    }
+  };
+}, [roomId, router]);
 
   async function handleStartGame() {
     try {

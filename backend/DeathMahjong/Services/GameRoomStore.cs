@@ -47,6 +47,11 @@ public class GameRoomStore
 
     }
 
+    public GameRoom? GetByJoinCode(string joinCode)
+    {
+        return _roomsById.Values.FirstOrDefault(r => r.JoinCode == joinCode);
+    }
+
     private static string GenerateJoinCode()
     {
         return Random.Shared.Next(100000, 999999).ToString(); // Generate a random 6-digit code

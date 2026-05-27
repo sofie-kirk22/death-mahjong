@@ -8,6 +8,9 @@ import { createGameHubConnection } from "@/lib/gameHub";
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
+
+  console.log("roomId", roomId);
+  console.log("params", params);
   
   const [room, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);

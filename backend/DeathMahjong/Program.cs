@@ -44,14 +44,14 @@ app.MapPost("/api/gamerooms", (
     return Results.Ok(gameRoom);
 });
 
-app.MapPost("/api/gamerooms/{roomId}/join", async (
-    string roomId,
+app.MapPost("/api/gamerooms/{joinCode}/join", async (
+    string joinCode,
     JoinRoomRequest request,
     GameRoomStore gameRoomStore,
     IHubContext<GameHub> hubContext
 ) =>
 {
-    var gameRoom = gameRoomStore.GetByID(roomId);
+    var gameRoom = gameRoomStore.GetByJoinCode(joinCode);
     if (gameRoom == null)
     {
         return Results.NotFound("Game room not found.");
@@ -75,7 +75,7 @@ app.MapPost("/api/gamerooms/{roomId}/join", async (
 
     gameRoom.Players.Add(player);
 
-    await hubContext.Clients.Group(roomId).SendAsync("PlayerJoined", player);
+    await hubContext.Clients.Group(gameRoom.Id).SendAsync("PlayerJoined", player);
 
     return Results.Ok(new
     {

@@ -37,11 +37,11 @@ export default function HomePage() {
 
       const result = await joinRoom(joinCode, joinName);
 
-      localStorage.setItem("roomId", result.room.id);
+      localStorage.setItem("roomId", result.gameRoom.id);
       localStorage.setItem("playerId", result.player.id);
-      localStorage.setItem("joinCode", result.room.joinCode);
+      localStorage.setItem("joinCode", result.gameRoom.joinCode);
 
-      router.push(`/room/${result.room.id}`);
+      router.push(`/room/${result.gameRoom.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not join room");
     }

@@ -29,7 +29,9 @@ export async function joinRoom(code: string, displayName: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ displayName }),
+    body: JSON.stringify({ 
+      playerName: displayName
+    }),
   });
 
   if (!response.ok) {

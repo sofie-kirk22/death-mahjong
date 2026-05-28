@@ -104,18 +104,6 @@ public class GameEngine
             Z = 1
         });
 
-        /*
-        for (int i = 0; i < 144; i++)
-        {
-            tiles.Add(new Tile
-            {
-                X = i % 12,
-                Y = (i / 12) % 12,
-                Z = i / 144
-            });
-        }
-        */
-
         return tiles;
     }
 

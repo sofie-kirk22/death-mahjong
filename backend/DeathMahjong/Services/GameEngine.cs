@@ -15,8 +15,10 @@ public class GameEngine
     }
 
     /*
-        * This is a tiny placeholder layout. 
-        * Need to be replaced with the actual layout of the Mahjong tiles.
+        * Actual tile generation logic. 
+        * This method will read the tile definitions from the JSON file, 
+        * Create Tile objects, shuffle them 
+        * Assign their positions based on the standard Mahjong layout.
     */
     public List<Tile> GenerateTiles()
     {

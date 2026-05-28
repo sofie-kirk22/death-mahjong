@@ -21,7 +21,38 @@ public class GameEngine
     public List<Tile> GenerateTiles()
     {
         Console.WriteLine("Generating tiles...");
-        var tiles = new List<Tile>();
+        var tiles = GetTilesFromJson();
+
+        //Shuffle tiles
+        ShuffleTiles(tiles);
+
+        // Assign temporary grid positions
+        //AssignTemporaryGridPositions(tiles);
+
+        // Assign actual grid positions based on the standard Mahjong layout
+        AssignActualGridPositions(tiles);
+
+        return tiles;
+    }
+
+    /*
+        * This is a tiny placeholder layout. 
+        * Need to be replaced with the actual layout of the Mahjong tiles.
+    */
+    public List<Tile> GenerateTilesBeta()
+    {
+        Console.WriteLine("Generating tiles...");
+        var tiles = GetTilesFromJson();
+
+        //Shuffle tiles
+        tiles = tiles.OrderBy(t => Random.Shared.Next()).ToList();
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            tiles[i].X = (i % 12) * 2;
+            tiles[i].Y = ((i / 12) % 12) * 2;
+            tiles[i].Z = i / 144;
+        }
 
         tiles.Add(new Tile
         {
@@ -84,6 +115,87 @@ public class GameEngine
         */
 
         return tiles;
+    }
+
+    public List<Tile> GetTilesFromJson()
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Data", "tiles.json");
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException("Tiles JSON file not found.", filePath);
+        
+        var jsonContent = File.ReadAllText(filePath);
+        var tileDtos = System.Text.Json.JsonSerializer.Deserialize<List<TileJsonDto>>(
+            jsonContent,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+
+        if (tileDtos == null)
+            throw new InvalidOperationException("Failed to deserialize tiles from JSON.");
+        
+        return tileDtos.Select(dto => new Tile
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Type = Enum.Parse<TileType>(dto.TileType, ignoreCase: true),
+            Value = dto.Value,
+            X = 0, // Placeholder, actual X coordinate should be set based on the layout
+            Y = 0, // Placeholder, actual Y coordinate should be set based on the layout
+            Z = 0,  // Placeholder, actual Z coordinate should be set based on the layout
+            IsDrawn = false
+        }).ToList();
+    }
+
+    private void ShuffleTiles(List<Tile> tiles)
+    {
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            var randomIndex = Random.Shared.Next(i, tiles.Count);
+
+            (tiles[i], tiles[randomIndex]) = (tiles[randomIndex], tiles[i]);
+        }
+    }
+
+    private void AssignTemporaryGridPositions(List<Tile> tiles)
+    {
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            tiles[i].X = (i % 12) * 2;
+            tiles[i].Y = ((i / 12) % 12) * 2;
+            tiles[i].Z = i / 144;
+        }
+    }
+
+    private void AssignActualGridPositions(List<Tile> tiles)
+    {
+        // This method should assign the actual X, Y, Z coordinates to each tile based on the standard Mahjong layout.
+        // The implementation will depend on the specific layout you want to use.
+        var index = 0;
+
+        for (int z = 0; z < 5; z++)
+        {
+            for (int y = 0; y < 7-z; y++)
+            {
+                for (int x = 0; x < 7-z; x++)
+                {
+                    if (index >= tiles.Count)
+                        return;
+
+                    tiles[index].X = (2 * x) + z;
+                    tiles[index].Y = (2 * y) + z;
+                    tiles[index].Z = z;
+
+                    index++;
+                }
+            }
+        }
+
+        tiles[index].X = 6;
+        tiles[index].Y = 6;
+        tiles[index].Z = 6;
+
+        Console.WriteLine("Number of assigned tiles: " + index);
+
     }
 
     public bool CanDrawTile(GameRoom gameRoom, string tileId)

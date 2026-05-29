@@ -118,75 +118,84 @@ export default function GamePage() {
   const currentPlayer = gameRoom.players[gameRoom.currentPlayerIndex];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-8">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 bg-white p-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
       <h1 className="text-3xl font-bold">Death Mahjong</h1>
 
       {error && (
-        <div className="rounded-lg border border-red-300 p-3 text-red-700">
+        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
           {error}
         </div>
       )}
 
-      <section className="rounded-2xl border p-4">
-        <p className="text-sm text-gray-500">Current player</p>
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Current player
+        </p>
         <p className="text-xl font-semibold">{currentPlayer.displayName}</p>
       </section>
 
-      <section className="rounded-2xl border p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="mb-3 text-xl font-semibold">Player history</h2>
 
         <ul className="space-y-3">
           {gameRoom.playerDrinksSummaries?.map((summary: any) => (
-            <li key={summary.playerId} className="rounded border p-3">
+            <li
+              key={summary.playerId}
+              className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
+            >
               <p className="font-semibold">{summary.playerName}</p>
 
-              <p>
+              <p className="text-slate-700 dark:text-slate-200">
                 Latest:{" "}
                 {summary.latestTileName
                   ? `${summary.latestTileName} — ${summary.latestSips} sips`
                   : "No tile drawn yet"}
               </p>
 
-              <p>Total: {summary.totalSips} sips</p>
+              <p className="text-slate-700 dark:text-slate-200">
+                Total: {summary.totalSips} sips
+              </p>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="rounded-2xl border p-4">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="mb-3 text-xl font-semibold">Tiles left</h2>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <div className="rounded border p-3">
-            <p className="text-sm text-gray-500">Bamboo</p>
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Bamboo</p>
             <p className="text-2xl font-bold">
               {gameRoom.remainingTileSummary?.bambooCount ?? 0}
             </p>
           </div>
 
-          <div className="rounded border p-3">
-            <p className="text-sm text-gray-500">Dots</p>
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Dots</p>
             <p className="text-2xl font-bold">
               {gameRoom.remainingTileSummary?.dotCount ?? 0}
             </p>
           </div>
 
-          <div className="rounded border p-3">
-            <p className="text-sm text-gray-500">Characters</p>
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Characters
+            </p>
             <p className="text-2xl font-bold">
               {gameRoom.remainingTileSummary?.characterCount ?? 0}
             </p>
           </div>
 
-          <div className="rounded border p-3">
-            <p className="text-sm text-gray-500">Winds</p>
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Winds</p>
             <p className="text-2xl font-bold">
               {gameRoom.remainingTileSummary?.windCount ?? 0}
             </p>
           </div>
 
-          <div className="rounded border p-3">
-            <p className="text-sm text-gray-500">Dragons</p>
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Dragons</p>
             <p className="text-2xl font-bold">
               {gameRoom.remainingTileSummary?.dragonCount ?? 0}
             </p>
@@ -194,17 +203,28 @@ export default function GamePage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-4 gap-3 rounded-2xl border p-4">
+      <section className="grid grid-cols-4 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {gameRoom.tiles.map((tile: any) => (
           <button
             key={tile.id}
-            disabled={tile.isDrawn}
-            className="rounded border p-3 text-left disabled:opacity-20"
+            disabled={tile.isDrawn || !tile.isDrawable}
+            className={[
+              "rounded border p-3 text-left transition",
+              tile.isDrawn
+                ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                : tile.isDrawable
+                  ? "border-green-500 bg-green-100 text-green-950 hover:bg-green-200 dark:border-green-500 dark:bg-green-950 dark:text-green-100 dark:hover:bg-green-900"
+                  : "cursor-not-allowed border-red-500 bg-red-100 text-red-950 opacity-60 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:opacity-50"
+            ].join(" ")}
             onClick={() => handleDrawTile(tile.id)}
           >
             <div className="font-semibold">{tile.name}</div>
-            <div className="text-sm text-gray-500">Value: {tile.value}</div>
-            <div className="text-xs text-gray-400">
+
+            <div className="text-sm text-slate-600 dark:text-slate-300">
+              Value: {tile.value}
+            </div>
+
+            <div className="text-xs text-slate-500 dark:text-slate-400">
               x:{tile.x} y:{tile.y} z:{tile.z}
             </div>
           </button>

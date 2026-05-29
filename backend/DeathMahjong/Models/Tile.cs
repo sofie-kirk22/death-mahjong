@@ -10,4 +10,5 @@ public class Tile
     public int Y { get; set; }  
     public int Z { get; set; }
     public bool IsDrawn { get; set; } = false;
+    public bool IsDrawable { get; set; }
 }

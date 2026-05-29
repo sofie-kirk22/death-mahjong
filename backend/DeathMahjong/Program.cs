@@ -111,6 +111,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     }
 
     gameRoom.Tiles = gameEngine.GenerateTiles();
+    gameEngine.UpdateDrawableTiles(gameRoom);
     gameRoom.HasStarted = true;
     gameRoom.StartedAt = DateTime.UtcNow;
     gameRoom.CurrentPlayerIndex = 0;
@@ -147,6 +148,8 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
         }
         Console.WriteLine("----------------------");
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
+
+        gameEngine.UpdateDrawableTiles(gameRoom);
 
         await hubContext.Clients.Group(roomId).SendAsync("TileDrawn", new
         {

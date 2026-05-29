@@ -188,6 +188,14 @@ public class GameEngine
 
     }
 
+    public void UpdateDrawableTiles(GameRoom gameRoom)
+    {
+        foreach (var tile in gameRoom.Tiles)
+        {
+            tile.IsDrawable = CanDrawTile(gameRoom, tile.Id);
+        }
+    }
+
     public bool CanDrawTile(GameRoom gameRoom, string tileId)
     {
         Console.WriteLine($"Checking if tile {tileId} can be drawn.");

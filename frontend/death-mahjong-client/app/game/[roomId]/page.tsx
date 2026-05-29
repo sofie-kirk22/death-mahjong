@@ -15,6 +15,7 @@ export default function GamePage() {
   const [gameRoom, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
+  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     async function loadRoom() {
@@ -230,6 +231,53 @@ export default function GamePage() {
           </button>
         ))}
       </section>
+
+      <button
+        className="rounded border px-3 py-2"
+        onClick={() => setShowDebug(!showDebug)}
+      >
+        {showDebug ? "Hide debug" : "Show debug"}
+      </button>
+
+      {showDebug && (
+        <section className="rounded-2xl border p-4">
+          <h2 className="mb-3 text-xl font-semibold">Tile debug view</h2>
+
+          <div className="max-h-96 overflow-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="border-b p-2">Name</th>
+                  <th className="border-b p-2">Type</th>
+                  <th className="border-b p-2">X</th>
+                  <th className="border-b p-2">Y</th>
+                  <th className="border-b p-2">Z</th>
+                  <th className="border-b p-2">Drawn</th>
+                  <th className="border-b p-2">Drawable</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {gameRoom.tiles.map((tile: any) => (
+                  <tr key={tile.id}>
+                    <td className="border-b p-2">{tile.name}</td>
+                    <td className="border-b p-2">{tile.type}</td>
+                    <td className="border-b p-2">{tile.x}</td>
+                    <td className="border-b p-2">{tile.y}</td>
+                    <td className="border-b p-2">{tile.z}</td>
+                    <td className="border-b p-2">
+                      {tile.isDrawn ? "Yes" : "No"}
+                    </td>
+                    <td className="border-b p-2">
+                      {tile.isDrawable ? "Yes" : "No"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

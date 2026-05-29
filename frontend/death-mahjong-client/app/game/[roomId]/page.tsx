@@ -106,16 +106,20 @@ export default function GamePage() {
     return <main className="p-8">Loading game...</main>;
   }
 
+  console.log("room:", gameRoom);
+  console.log("playerDrinkSummaries:", gameRoom.playerDrinkSummaries);
+  console.log("remainingTileSummary:", gameRoom.remainingTileSummary);
+
   const latestMovePlayer =
-  latestMove && gameRoom?.players
-    ? gameRoom.players.find((player: any) => player.id === latestMove.playerId)
-    : null;
-  
+    latestMove && gameRoom?.players
+      ? gameRoom.players.find((player: any) => player.id === latestMove.playerId)
+      : null;
+
   const currentPlayer = gameRoom.players[gameRoom.currentPlayerIndex];
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-8">
-      <h1 className="text-3xl font-bold">Game</h1>
+      <h1 className="text-3xl font-bold">Death Mahjong</h1>
 
       {error && (
         <div className="rounded-lg border border-red-300 p-3 text-red-700">
@@ -128,18 +132,67 @@ export default function GamePage() {
         <p className="text-xl font-semibold">{currentPlayer.displayName}</p>
       </section>
 
-      {latestMove && (
-        <section className="rounded-2xl border p-4">
-          <h2 className="text-xl font-semibold">Drink result</h2>
-          <p>
-            {latestMovePlayer?.displayName ?? "Unknown player"}:{" "}
-            {latestMove.tileName}: {latestMove.drinks} sips
-          </p>
-          <p className="text-sm text-gray-500">
-            Drawn {latestMove.sameTileDrawCount} time(s)
-          </p>
-        </section>
-      )}
+      <section className="rounded-2xl border p-4">
+        <h2 className="mb-3 text-xl font-semibold">Player history</h2>
+
+        <ul className="space-y-3">
+          {gameRoom.playerDrinksSummaries?.map((summary: any) => (
+            <li key={summary.playerId} className="rounded border p-3">
+              <p className="font-semibold">{summary.playerName}</p>
+
+              <p>
+                Latest:{" "}
+                {summary.latestTileName
+                  ? `${summary.latestTileName} — ${summary.latestSips} sips`
+                  : "No tile drawn yet"}
+              </p>
+
+              <p>Total: {summary.totalSips} sips</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="rounded-2xl border p-4">
+        <h2 className="mb-3 text-xl font-semibold">Tiles left</h2>
+
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <div className="rounded border p-3">
+            <p className="text-sm text-gray-500">Bamboo</p>
+            <p className="text-2xl font-bold">
+              {gameRoom.remainingTileSummary?.bambooCount ?? 0}
+            </p>
+          </div>
+
+          <div className="rounded border p-3">
+            <p className="text-sm text-gray-500">Dots</p>
+            <p className="text-2xl font-bold">
+              {gameRoom.remainingTileSummary?.dotCount ?? 0}
+            </p>
+          </div>
+
+          <div className="rounded border p-3">
+            <p className="text-sm text-gray-500">Characters</p>
+            <p className="text-2xl font-bold">
+              {gameRoom.remainingTileSummary?.characterCount ?? 0}
+            </p>
+          </div>
+
+          <div className="rounded border p-3">
+            <p className="text-sm text-gray-500">Winds</p>
+            <p className="text-2xl font-bold">
+              {gameRoom.remainingTileSummary?.windCount ?? 0}
+            </p>
+          </div>
+
+          <div className="rounded border p-3">
+            <p className="text-sm text-gray-500">Dragons</p>
+            <p className="text-2xl font-bold">
+              {gameRoom.remainingTileSummary?.dragonCount ?? 0}
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="grid grid-cols-4 gap-3 rounded-2xl border p-4">
         {gameRoom.tiles.map((tile: any) => (

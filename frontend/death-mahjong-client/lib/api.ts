@@ -29,7 +29,7 @@ export async function joinRoom(code: string, displayName: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       playerName: displayName
     }),
   });
@@ -76,9 +76,25 @@ export async function drawTile(roomId: string, playerId: string, tileId: string)
 export async function getRoom(roomId: string) {
   const response = await fetch(`${API_URL}/api/gamerooms/${roomId}`);
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
-
-    return response.json();
+  if (!response.ok) {
+    throw new Error(await response.text());
   }
+
+  return response.json();
+}
+
+export async function abortGame(roomId: string, playerId: string) {
+  const response = await fetch(`${API_URL}/api/gamerooms/${roomId}/abort`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ playerId }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  } 
+
+  return response.json();
+}

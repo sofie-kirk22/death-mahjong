@@ -4,7 +4,7 @@ public class GameRoom
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string JoinCode { get; set; } = "";
-
+    public string HostPlayerId { get; set; } = "";
     public List<Player> Players { get; set; } = new List<Player>();
     public List<Tile> Tiles { get; set; } = new List<Tile>();
     public List<Move> Moves { get; set; } = new List<Move>();
@@ -15,6 +15,14 @@ public class GameRoom
     public bool HasStarted { get; set; } = false;
 
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
+
+    public bool HasEnded { get; set; } = false;
+
+    public GameEndReason? EndReason { get; set; }
+
+    public DateTime? EndedAt { get; set; }
+
+    public string? EndedByPlayerId { get; set; }
 
     public string? CurrentPlayerId => Players.Count > 0 ? Players[CurrentPlayerIndex].Id : null;
 

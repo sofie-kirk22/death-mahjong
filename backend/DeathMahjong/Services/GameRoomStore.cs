@@ -11,17 +11,20 @@ public class GameRoomStore
     public GameRoom CreateGameRoom(string hostPlayerName, bool hardCoreMode)
     {
         Console.WriteLine($"Creating game room with host player: {hostPlayerName}, hardCoreMode: {hardCoreMode}");
+        var hostPlayer = new Player
+        {
+            DisplayName = hostPlayerName,
+            Color = "#FF0000" // Host player gets red color
+        };
+
         var gameRoom = new GameRoom
         {
             JoinCode = GenerateJoinCode(),
             HardCoreMode = hardCoreMode,
+            HostPlayerId = hostPlayer.Id
         };
         
-        gameRoom.Players.Add(new Player 
-        { 
-            DisplayName = hostPlayerName,
-            Color = "#FF0000" // Host player gets red color
-        });
+        gameRoom.Players.Add(hostPlayer);
 
         _roomsById[gameRoom.Id] = gameRoom;
         _roomIdsByCode[gameRoom.JoinCode] = gameRoom.Id;

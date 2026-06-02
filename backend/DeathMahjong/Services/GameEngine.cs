@@ -272,7 +272,9 @@ public class GameEngine
 
         if (gameRoom.CurrentPlayerId != playerId)
             throw new InvalidOperationException("It's not the player's turn.");
-        
+
+        if (gameRoom.HasEnded)
+            throw new InvalidOperationException("Game has already ended.");
         
         var tile = gameRoom.Tiles.FirstOrDefault(t => t.Id == tileId);
 
@@ -324,5 +326,49 @@ public class GameEngine
 
         gameRoom.CurrentPlayerIndex = 
             (gameRoom.CurrentPlayerIndex + 1) % gameRoom.Players.Count;
+    }
+
+    public void IsGameOver(GameRoom gameRoom)
+    {
+        if (gameRoom.HasEnded)
+            return;
+        
+        bool allTilesDrawn = gameRoom.Tiles.All(t => t.IsDrawn);
+
+        if (allTilesDrawn)
+        {
+            EndGame(gameRoom, GameEndReason.NormalEnd);
+            return;
+        }
+
+        bool anyDrawableTilesLeft = gameRoom.Tiles.Any(t => !t.IsDrawn && CanDrawTile(gameRoom, t.Id));
+
+        // Should not be reachable
+        if (!anyDrawableTilesLeft)
+        {
+            EndGame(gameRoom, GameEndReason.BlockedEnd);
+        }
+    }
+
+    private void EndGame(GameRoom gameRoom, GameEndReason reason, string? endedByPlayerId = null)
+    {
+        gameRoom.HasEnded = true;
+        gameRoom.EndReason = reason;
+        gameRoom.EndedAt = DateTime.UtcNow;
+        gameRoom.EndedByPlayerId = endedByPlayerId;
+    }
+
+    public void AbortGame(GameRoom gameRoom, string playerId)
+    {
+        if (!gameRoom.HasStarted)
+            throw new InvalidOperationException("Game has not started yet.");
+        
+        if (gameRoom.HasEnded)
+            throw new InvalidOperationException("Game has already ended.");
+
+        if(gameRoom.HostPlayerId != playerId)
+            throw new InvalidOperationException("Only the host can abort the game.");
+
+        EndGame(gameRoom, GameEndReason.AbortEnd, playerId);
     }
 }

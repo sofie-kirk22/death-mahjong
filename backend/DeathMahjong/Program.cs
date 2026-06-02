@@ -150,12 +150,21 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
 
         gameEngine.UpdateDrawableTiles(gameRoom);
+        gameEngine.IsGameOver(gameRoom);
 
         await hubContext.Clients.Group(roomId).SendAsync("TileDrawn", new
         {
             gameRoom,
             move
         });
+
+        if (gameRoom.HasEnded)
+        {
+            await hubContext.Clients.Group(roomId).SendAsync("GameEnded", new
+            {
+                gameRoom
+            });
+        }
 
         return Results.Ok(new
         {
@@ -169,6 +178,42 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 
         return Results.BadRequest(ex.Message);
     }
+});
+
+app.MapPost("/api/gamerooms/{roomId}/abort", async (
+    string roomId,
+    AbortGameRequest request,
+    GameRoomStore gameRoomStore,
+    GameEngine gameEngine,
+    IHubContext<GameHub> hubContext
+) =>
+{
+    var gameRoom = gameRoomStore.GetByID(roomId);
+    if (gameRoom == null)
+    {
+        return Results.NotFound("Game room not found.");
+    }
+
+    try
+    {
+        gameEngine.AbortGame(gameRoom, request.PlayerId);
+
+        await hubContext.Clients.Group(roomId).SendAsync("GameEnded", new
+        {
+            gameRoom
+        });
+    }
+    catch (InvalidOperationException ex)
+    {
+        await hubContext.Clients.Group(roomId).SendAsync("InvalidAbort", ex.Message);
+
+        return Results.BadRequest(ex.Message);
+    }
+
+    return Results.Ok(new
+    {
+        gameRoom
+    });
 });
 
 app.MapGet("/api/gamerooms/{roomId}", (

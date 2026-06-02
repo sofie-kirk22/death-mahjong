@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { drawTile, getRoom } from "@/lib/api";
+import { useParams, useRouter } from "next/navigation";
+import { abortGame, drawTile, getRoom } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
 
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
+  const router = useRouter();
 
   console.log("roomId", roomId);
   console.log("params", params);
@@ -23,11 +24,13 @@ export default function GamePage() {
         const data = await getRoom(roomId);
         setRoom(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not load game");
+        setError(err instanceof Error ? err.message : "Could not load game end");
       }
     }
 
-    loadRoom();
+    if (roomId) {
+      loadRoom();
+    }
   }, [roomId]);
 
   useEffect(() => {
@@ -48,6 +51,31 @@ export default function GamePage() {
         connection.on("InvalidMove", (message) => {
           if (!cancelled) {
             setError(message);
+          }
+        });
+
+        connection.on("GameEnded", (payload) => {
+          if (!cancelled) {
+            const endedRoom = payload.gameRoom ?? payload.room ?? payload;
+
+            if (!endedRoom?.id) {
+              setError("GameEnded event did not contain a valid game room.");
+              return;
+            }
+
+            setRoom(endedRoom);
+
+            const isAbortEnd =
+              endedRoom.endReason === "AbortEnd" ||
+              endedRoom.endReason === 2;
+
+            if (isAbortEnd) {
+              localStorage.removeItem("roomId");
+              localStorage.removeItem("joinCode");
+              router.push("/");
+            } else {
+              router.push(`/game-end/${endedRoom.id}`);
+            }
           }
         });
 
@@ -82,11 +110,16 @@ export default function GamePage() {
         connection.stop();
       }
     };
-  }, [roomId]);
+  }, [roomId, router]);
 
   async function handleDrawTile(tileId: string) {
     try {
       setError("");
+
+      if (gameRoom?.hasEnded) {
+        setError("Game has already ended.");
+        return;
+      }
 
       const playerId = localStorage.getItem("playerId");
 
@@ -96,10 +129,59 @@ export default function GamePage() {
 
       const result = await drawTile(roomId, playerId, tileId);
 
-      setRoom(result.gameRoom);
-      setLatestMove(result.move);
+      const updatedRoom = result.gameRoom;
+      const move = result.move;
+
+      if (!updatedRoom) {
+        throw new Error("Draw response did not contain a gameRoom.");
+      }
+
+      setRoom(updatedRoom);
+      setLatestMove(move);
+
+      if (updatedRoom.hasEnded) {
+        const isAbortEnd =
+          updatedRoom.endReason === "AbortEnd" ||
+          updatedRoom.endReason === 2;
+
+        if (isAbortEnd) {
+          localStorage.removeItem("roomId");
+          localStorage.removeItem("joinCode");
+          router.push("/");
+        } else {
+          router.push(`/game-end/${updatedRoom.id}`);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not draw tile");
+    }
+  }
+
+  async function handleAbortGame() {
+    try {
+      setError("");
+
+      const playerId = localStorage.getItem("playerId");
+
+      if (!playerId) {
+        throw new Error("Missing playerId");
+      }
+
+      const result = await abortGame(roomId, playerId);
+
+      console.log("abort result:", result);
+
+      const updatedRoom = result.gameRoom ?? result.room ?? result;
+
+      if (!updatedRoom?.id) {
+        throw new Error("Abort response did not contain a valid game room.");
+      }
+
+      setRoom(updatedRoom);
+
+      router.push(`/`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not abort game");
     }
   }
 
@@ -110,6 +192,11 @@ export default function GamePage() {
   console.log("room:", gameRoom);
   console.log("playerDrinkSummaries:", gameRoom.playerDrinkSummaries);
   console.log("remainingTileSummary:", gameRoom.remainingTileSummary);
+
+  const myPlayerID =
+    typeof window !== "undefined" ? localStorage.getItem("playerId") : null;
+
+  const isHost = myPlayerID === gameRoom.hostPlayerId;
 
   const latestMovePlayer =
     latestMove && gameRoom?.players
@@ -134,6 +221,15 @@ export default function GamePage() {
         </p>
         <p className="text-xl font-semibold">{currentPlayer.displayName}</p>
       </section>
+
+      {isHost && !gameRoom.hasEnded && (
+        <button
+          className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
+          onClick={handleAbortGame}
+        >
+          Abort game
+        </button>
+      )}
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="mb-3 text-xl font-semibold">Player history</h2>
@@ -205,32 +301,46 @@ export default function GamePage() {
       </section>
 
       <section className="grid grid-cols-4 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        {gameRoom.tiles.map((tile: any) => (
-          <button
-            key={tile.id}
-            disabled={tile.isDrawn || !tile.isDrawable}
-            className={[
-              "rounded border p-3 text-left transition",
-              tile.isDrawn
-                ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
-                : tile.isDrawable
-                  ? "border-green-500 bg-green-100 text-green-950 hover:bg-green-200 dark:border-green-500 dark:bg-green-950 dark:text-green-100 dark:hover:bg-green-900"
-                  : "cursor-not-allowed border-red-500 bg-red-100 text-red-950 opacity-60 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:opacity-50"
-            ].join(" ")}
-            onClick={() => handleDrawTile(tile.id)}
-          >
-            <div className="font-semibold">{tile.name}</div>
+        {gameRoom.tiles.map((tile: any) => {
+          const gameHasEnded = gameRoom.hasEnded;
+          const isDisabled = gameHasEnded || tile.isDrawn || !tile.isDrawable;
 
-            <div className="text-sm text-slate-600 dark:text-slate-300">
-              Value: {tile.value}
-            </div>
+          return (
+            <button
+              key={tile.id}
+              disabled={isDisabled}
+              className={[
+                "rounded border p-3 text-left transition",
+                gameHasEnded
+                  ? "cursor-not-allowed border-slate-300 bg-slate-100 text-slate-400 opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                  : tile.isDrawn
+                    ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                    : tile.isDrawable
+                      ? "border-green-500 bg-green-100 text-green-950 hover:bg-green-200 dark:border-green-500 dark:bg-green-950 dark:text-green-100 dark:hover:bg-green-900"
+                      : "cursor-not-allowed border-red-500 bg-red-100 text-red-950 opacity-60 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:opacity-50",
+              ].join(" ")}
+              onClick={() => handleDrawTile(tile.id)}
+            >
+              <div className="font-semibold">{tile.name}</div>
 
-            <div className="text-xs text-slate-500 dark:text-slate-400">
-              x:{tile.x} y:{tile.y} z:{tile.z}
-            </div>
-          </button>
-        ))}
+              <div className="text-sm text-slate-600 dark:text-slate-300">
+                Value: {tile.value}
+              </div>
+
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                x:{tile.x} y:{tile.y} z:{tile.z}
+              </div>
+            </button>
+          );
+        })}
       </section>
+
+      {gameRoom.hasEnded && (
+        <section className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-100">
+          <h2 className="text-xl font-semibold">Game ended</h2>
+          <p>Reason: {gameRoom.endReason}</p>
+        </section>
+      )}
 
       <button
         className="rounded border px-3 py-2"

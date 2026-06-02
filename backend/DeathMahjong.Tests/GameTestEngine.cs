@@ -347,4 +347,84 @@ public class GameEngineTests
             IsDrawn = isDrawn
         };
     }
+
+    [Fact]
+    public void CheckForGameEnd_SetsNormalEnd_WhenAllTilesAreDrawn()
+    {
+        var room = new GameRoom
+        {
+            HasStarted = true,
+            Tiles = new List<Tile>
+            {
+                new Tile { Id = "1", Name = "Tile 1", IsDrawn = true },
+                new Tile { Id = "2", Name = "Tile 2", IsDrawn = true }
+            }
+        };
+
+        _engine.IsGameOver(room);
+
+        Assert.True(room.HasEnded);
+        Assert.Equal(GameEndReason.NormalEnd, room.EndReason);
+        Assert.NotNull(room.EndedAt);
+    }
+
+    [Fact]
+    public void DrawTile_Throws_WhenGameHasEnded()
+    {
+        var player = new Player
+        {
+            Id = "player-1",
+            DisplayName = "Sofie"
+        };
+
+        var tile = new Tile
+        {
+            Id = "tile-1",
+            Name = "Bamboo 1",
+            Type = TileType.Bamboo,
+            Value = 1,
+            X = 0,
+            Y = 0,
+            Z = 0
+        };
+
+        var room = new GameRoom
+        {
+            HasStarted = true,
+            HasEnded = true,
+            Players = new List<Player> { player },
+            CurrentPlayerIndex = 0,
+            Tiles = new List<Tile> { tile }
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            _engine.DrawTile(room, player.Id, tile.Id)
+        );
+
+        Assert.Equal("Game has already ended.", exception.Message);
+    }
+
+    [Fact]
+    public void AbortGame_SetsAbortEnd_WhenPlayerIsHost()
+    {
+        var host = new Player
+        {
+            Id = "host-1",
+            DisplayName = "Sofie"
+        };
+
+        var room = new GameRoom
+        {
+            HasStarted = true,
+            HostPlayerId = host.Id,
+            Players = new List<Player> { host }
+        };
+
+        _engine.AbortGame(room, host.Id);
+
+        Assert.True(room.HasEnded);
+        Assert.Equal(GameEndReason.AbortEnd, room.EndReason);
+        Assert.Equal(host.Id, room.EndedByPlayerId);
+        Assert.NotNull(room.EndedAt);
+    }
 }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getRoom } from "@/lib/api";
 
 export default function GameEndPage() {
     const params = useParams<{ roomId: string }>();
     const roomId = params.roomId;
+    const router = useRouter();
 
     const [gameRoom, setGameRoom] = useState<any>(null);
     const [error, setError] = useState("");
@@ -169,6 +170,13 @@ export default function GameEndPage() {
                     </div>
                 </div>
             </section>
+
+            <button
+                onClick={() => router.push("/")}
+                className="mt-8 rounded-lg border border-slate-300 px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+                Back to start page
+            </button>
         </main>
     );
 }

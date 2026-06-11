@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getRoom, startGame } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
 import { useParams, useRouter } from "next/navigation";
+import { getPlayerIdForRoom } from "@/lib/gameSession";
 
 type RoomPageProps = {
   params: {
@@ -23,10 +24,20 @@ export default function RoomPage() {
   console.log("roomId", roomId);
 
   useEffect(() => {
+    if (!roomId) return;
+
     async function loadRoom() {
       try {
+        setError("");
+
         const data = await getRoom(roomId);
-        setRoom(data);
+        const loadedRoom = data.gameRoom ?? data.room ?? data;
+
+        if (!loadedRoom?.id) {
+          throw new Error("Room response did not contain a valid room.");
+        }
+
+        setRoom(loadedRoom);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not load room");
       }
@@ -43,23 +54,54 @@ export default function RoomPage() {
 
     async function connect() {
       try {
-        connection.on("RoomUpdated", (updatedRoom) => {
-          if (!cancelled) {
-            setRoom(updatedRoom);
+        connection.on("PlayerJoined", (payload) => {
+          if (cancelled) return;
+
+          console.log("PlayerJoined payload:", payload);
+
+          const updatedRoom = payload.gameRoom ?? payload.room ?? payload;
+
+          if (!updatedRoom?.id) {
+            setError("PlayerJoined event did not contain a valid room.");
+            return;
           }
+
+          setRoom(updatedRoom);
         });
 
-        connection.on("GameStarted", (startedRoom) => {
-          if (!cancelled) {
-            setRoom(startedRoom);
-            router.push(`/game/${startedRoom.id}`);
+        connection.on("GameStarted", (payload) => {
+          if (cancelled) return;
+
+          const updatedRoom = payload.gameRoom ?? payload.room ?? payload;
+
+          if (!updatedRoom?.id) {
+            setError("GameStarted event did not contain a valid room.");
+            return;
+          }
+
+          setRoom(updatedRoom);
+          router.push(`/game/${updatedRoom.id}`);
+        });
+
+        connection.on("GameEnded", (payload) => {
+          if (cancelled) return;
+
+          const endedRoom = payload.gameRoom ?? payload.room ?? payload;
+
+          if (endedRoom?.id) {
+            setRoom(endedRoom);
+            router.push("/");
           }
         });
 
         await connection.start();
 
         if (cancelled) {
-          await connection.stop();
+          try {
+            await connection.stop();
+          } catch {
+            // Ignore cleanup error
+          }
           return;
         }
 
@@ -69,7 +111,7 @@ export default function RoomPage() {
           setError(
             err instanceof Error
               ? err.message
-              : "Could not connect to realtime server"
+              : "Could not connect to realtime updates"
           );
         }
       }
@@ -80,15 +122,25 @@ export default function RoomPage() {
     return () => {
       cancelled = true;
 
-      if (connection.state === "Connected") {
-        connection.stop();
-      }
+      void (async () => {
+        try {
+          if (
+            connection.state === "Connected" ||
+            connection.state === "Connecting" ||
+            connection.state === "Reconnecting"
+          ) {
+            await connection.stop();
+          }
+        } catch {
+          // Ignore cleanup errors during navigation/dev reloads
+        }
+      })();
     };
   }, [roomId, router]);
 
   async function handleStartGame() {
     try {
-      const playerId = localStorage.getItem("playerId");
+      const playerId = getPlayerIdForRoom(roomId);
 
       if (!playerId) {
         throw new Error("Missing playerId");
@@ -118,20 +170,20 @@ export default function RoomPage() {
 
       <section className="rounded-2xl border p-4">
         <p className="text-sm text-gray-500">Join code</p>
-        <p className="text-4xl font-bold tracking-widest">{gameRoom.joinCode}</p>
+        <p className="text-4xl font-bold tracking-widest">{gameRoom.joinCode ?? "No join code available"}</p>
       </section>
 
       <section className="rounded-2xl border p-4">
         <h2 className="mb-3 text-xl font-semibold">Players</h2>
 
         <ul className="space-y-2">
-          {gameRoom.players.map((player: any) => (
+          {(gameRoom.players ?? []).map((player: any) => (
             <li key={player.id} className="flex items-center gap-2">
               <span
                 className="h-4 w-4 rounded-full"
                 style={{ backgroundColor: player.color }}
               />
-              {player.displayName}
+              <span>{player.displayName}</span>
             </li>
           ))}
         </ul>

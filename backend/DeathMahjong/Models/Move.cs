@@ -8,6 +8,8 @@ public class Move
     public string TileId { get; set; } = "";
     public string TileName { get; set; } = "";
 
+    public TileType TileType { get; set; }
+    
     public int TileValue { get; set; }
     public int SameTileDrawCount { get; set; }
     public int Drinks { get; set; }

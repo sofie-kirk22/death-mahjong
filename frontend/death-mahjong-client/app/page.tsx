@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createRoom, joinRoom } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { saveGameSession } from "@/lib/gameSession";
 
 export default function HomePage() {
   const router = useRouter();
@@ -21,9 +22,7 @@ export default function HomePage() {
 
       const hostPlayer = room.players[0];
 
-      localStorage.setItem("roomId", room.id);
-      localStorage.setItem("playerId", hostPlayer.id);
-      localStorage.setItem("joinCode", room.joinCode);
+      saveGameSession(room.id, hostPlayer.id, room.joinCode);
 
       router.push(`/room/${room.id}`);
     } catch (err) {
@@ -37,9 +36,11 @@ export default function HomePage() {
 
       const result = await joinRoom(joinCode, joinName);
 
-      localStorage.setItem("roomId", result.gameRoom.id);
-      localStorage.setItem("playerId", result.player.id);
-      localStorage.setItem("joinCode", result.gameRoom.joinCode);
+      saveGameSession(
+        result.gameRoom.id, 
+        result.player.id, 
+        result.gameRoom.joinCode
+      );
 
       router.push(`/room/${result.gameRoom.id}`);
     } catch (err) {
@@ -77,7 +78,7 @@ export default function HomePage() {
         </label>
 
         <button
-          className="rounded bg-black px-4 py-2 border border-white text-white"
+          className="rounded bg-blue-500 px-4 py-2 border border-white text-white hover:bg-blue-600 hover:text-white transition-colors"
           onClick={handleCreateRoom}
         >
           Create room
@@ -102,7 +103,7 @@ export default function HomePage() {
         />
 
         <button
-          className="rounded bg-black px-4 py-2 border border-white text-white"
+          className="rounded bg-blue-500 px-4 py-2 border border-white text-white hover:bg-blue-600 hover:text-white transition-colors"
           onClick={handleJoinRoom}
         >
           Join room

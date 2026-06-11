@@ -51,7 +51,8 @@ public class GameRoom
                 PlayerName = p.DisplayName,
                 LatestTileName = latestMove?.TileName,
                 LatestSips = latestMove?.Drinks,
-                TotalSips = playerMoves.Sum(m => m.Drinks)
+                TotalSips = playerMoves.Sum(m => m.Drinks),
+                DragonCount = playerMoves.Count(m => m.TileType == TileType.Dragon)
             };
         }).ToList();
 

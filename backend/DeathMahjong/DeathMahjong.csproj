@@ -16,4 +16,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\tilesTest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

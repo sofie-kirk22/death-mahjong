@@ -47,23 +47,6 @@ export default function GameEndPage() {
 
     const playerSummaries = gameRoom.playerDrinksSummaries ?? [];
 
-    const dragonCountsByPlayer = gameRoom.players?.map((player: any) => {
-        const dragonCount =
-            gameRoom.moves?.filter((move: any) => {
-                const drawnTile = gameRoom.tiles?.find(
-                    (tile: any) => tile.id === move.tileId
-                );
-
-                return move.playerId === player.id && move.tileName?.includes("Dragon");
-            }).length ?? 0;
-
-        return {
-            playerId: player.id,
-            playerName: player.displayName,
-            dragonCount,
-        };
-    }) ?? [];
-
     const durationHours = gameRoom.endedAt
         ? ((new Date(gameRoom.endedAt).getTime() - new Date(gameRoom.startedAt).getTime()) / 1000 / 60 / 60)
         : 0;
@@ -131,15 +114,18 @@ export default function GameEndPage() {
                 <h2 className="mb-3 text-xl font-semibold">Dragons drawn</h2>
 
                 <ul className="space-y-3">
-                    {[...dragonCountsByPlayer]
+                    {[...playerSummaries]
                         .sort((a: any, b: any) => b.dragonCount - a.dragonCount)
-                        .map((player: any) => (
+                        .map((summary: any) => (
                             <li
-                                key={player.playerId}
+                                key={summary.playerId}
                                 className="flex items-center justify-between rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
                             >
-                                <p className="font-semibold">{player.playerName}</p>
-                                <p className="text-2xl font-bold">{player.dragonCount}</p>
+                                <p className="font-semibold">{summary.playerName}</p>
+
+                                <p className="text-2xl font-bold">
+                                    {summary.dragonCount ?? 0}
+                                </p>
                             </li>
                         ))}
                 </ul>

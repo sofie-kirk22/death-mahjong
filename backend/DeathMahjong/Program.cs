@@ -75,7 +75,11 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
 
     gameRoom.Players.Add(player);
 
-    await hubContext.Clients.Group(gameRoom.Id).SendAsync("PlayerJoined", player);
+    await hubContext.Clients.Group(gameRoom.Id).SendAsync("PlayerJoined", new
+        {
+            gameRoom, 
+            player
+        });
 
     return Results.Ok(new
     {
@@ -116,7 +120,10 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     gameRoom.StartedAt = DateTime.UtcNow;
     gameRoom.CurrentPlayerIndex = 0;
 
-    await hubContext.Clients.Group(roomId).SendAsync("GameStarted", gameRoom);
+    await hubContext.Clients.Group(roomId).SendAsync("GameStarted", new
+    {
+        gameRoom
+    });
 
     return Results.Ok(gameRoom);
 });

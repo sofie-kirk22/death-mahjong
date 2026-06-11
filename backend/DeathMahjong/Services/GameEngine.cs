@@ -109,7 +109,9 @@ public class GameEngine
 
     public List<Tile> GetTilesFromJson()
     {
-        var filePath = Path.Combine(AppContext.BaseDirectory, "Data", "tiles.json");
+        var fileName = "tiles.json"; 
+        //var fileName = "tilesTest.json"; // Temporary test file with fewer tiles for easier debugging
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Data", fileName);
 
         if (!File.Exists(filePath))
             throw new FileNotFoundException("Tiles JSON file not found.", filePath);
@@ -286,7 +288,11 @@ public class GameEngine
 
         tile.IsDrawn = true;
 
-        var sameTileDrawCount = gameRoom.Moves.Count(m => m.TileName == tile.Name) + 1; // Count how many times this tile has been drawn, including the current draw
+        var sameTileDrawCount = gameRoom.Moves.Count(m =>
+            m.PlayerId == playerId &&
+            m.TileName == tile.Name
+        ) + 1; 
+
         var drinks = CalculateDrinks(
             value: tile.Value, 
             sameTileDrawCount: sameTileDrawCount, 
@@ -298,6 +304,7 @@ public class GameEngine
             PlayerId = playerId,
             TileId = tile.Id,
             TileName = tile.Name,
+            TileType = tile.Type,
             TileValue = tile.Value,
             SameTileDrawCount = sameTileDrawCount,
             Drinks = drinks

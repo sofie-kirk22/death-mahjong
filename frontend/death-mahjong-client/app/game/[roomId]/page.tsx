@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { abortGame, drawTile, getRoom } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
+import { clearGameSession, getPlayerIdForRoom } from "@/lib/gameSession";
 
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
@@ -17,6 +18,9 @@ export default function GamePage() {
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
   const [showDebug, setShowDebug] = useState(false);
+
+  const myPlayerId = getPlayerIdForRoom(roomId);
+  const me = gameRoom?.players?.find((p: any) => p.id === myPlayerId);
 
   useEffect(() => {
     async function loadRoom() {
@@ -70,8 +74,7 @@ export default function GamePage() {
               endedRoom.endReason === 2;
 
             if (isAbortEnd) {
-              localStorage.removeItem("roomId");
-              localStorage.removeItem("joinCode");
+              clearGameSession(endedRoom.id);
               router.push("/");
             } else {
               router.push(`/game-end/${endedRoom.id}`);
@@ -121,7 +124,7 @@ export default function GamePage() {
         return;
       }
 
-      const playerId = localStorage.getItem("playerId");
+      const playerId = getPlayerIdForRoom(roomId);
 
       if (!playerId) {
         throw new Error("Missing playerId");
@@ -145,8 +148,7 @@ export default function GamePage() {
           updatedRoom.endReason === 2;
 
         if (isAbortEnd) {
-          localStorage.removeItem("roomId");
-          localStorage.removeItem("joinCode");
+          clearGameSession(updatedRoom.id);
           router.push("/");
         } else {
           router.push(`/game-end/${updatedRoom.id}`);
@@ -161,7 +163,7 @@ export default function GamePage() {
     try {
       setError("");
 
-      const playerId = localStorage.getItem("playerId");
+      const playerId = getPlayerIdForRoom(roomId);
 
       if (!playerId) {
         throw new Error("Missing playerId");
@@ -207,7 +209,17 @@ export default function GamePage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 bg-white p-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
-      <h1 className="text-3xl font-bold">Death Mahjong</h1>
+      <div className="mb-6 flex items-center gap-3">
+        <h1 className="text-3xl font-bold">Death Mahjong</h1>
+
+        <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          <span
+            className="h-2.5 w-2.5 rounded-full"
+            style={{ backgroundColor: me?.color ?? "#94a3b8" }}
+          />
+          <span>{me?.displayName ?? "Unknown"}</span>
+        </div>
+      </div>
 
       {error && (
         <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">

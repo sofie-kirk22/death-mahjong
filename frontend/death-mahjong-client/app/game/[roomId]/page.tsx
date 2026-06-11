@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { abortGame, drawTile, getRoom } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
-import { clearGameSession, getPlayerIdForRoom } from "@/lib/gameSession";
+import { clearGameSession, getPlayerIdForRoom} from "@/lib/gameSession";
 
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
@@ -180,7 +180,7 @@ export default function GamePage() {
       }
 
       setRoom(updatedRoom);
-
+      clearGameSession(updatedRoom.id);
       router.push(`/`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not abort game");
@@ -196,7 +196,7 @@ export default function GamePage() {
   console.log("remainingTileSummary:", gameRoom.remainingTileSummary);
 
   const myPlayerID =
-    typeof window !== "undefined" ? localStorage.getItem("playerId") : null;
+    typeof window !== "undefined" ? getPlayerIdForRoom(roomId) : null;
 
   const isHost = myPlayerID === gameRoom.hostPlayerId;
 

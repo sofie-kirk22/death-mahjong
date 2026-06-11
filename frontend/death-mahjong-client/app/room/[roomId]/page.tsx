@@ -21,6 +21,14 @@ export default function RoomPage() {
   const [gameRoom, setRoom] = useState<any>(null);
   const [error, setError] = useState("");
 
+  const myPlayerId = getPlayerIdForRoom(roomId);
+
+  const me = myPlayerId
+    ? gameRoom?.players.find((player: any) => player.id === myPlayerId)
+    : null;
+
+  const isHost = myPlayerId === gameRoom?.hostPlayerId;
+
   console.log("roomId", roomId);
 
   useEffect(() => {
@@ -189,12 +197,20 @@ export default function RoomPage() {
         </ul>
       </section>
 
-      <button
-        className="rounded bg-black px-4 py-2 border border-white text-white"
-        onClick={handleStartGame}
-      >
-        Start game
-      </button>
+      {isHost && !gameRoom.hasStarted && (
+        <button
+          onClick={handleStartGame}
+          className="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
+        >
+          Start game
+        </button>
+      )}
+
+      {!isHost && !gameRoom.hasStarted && (
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Waiting for the host to start the game.
+        </p>
+      )}
     </main>
   );
 }

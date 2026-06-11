@@ -62,14 +62,31 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
         return Results.BadRequest("Cannot join a game that has already started.");
     }
 
-    if (string.IsNullOrWhiteSpace(request.PlayerName))
+    if (gameRoom.HasEnded)
+    {
+        return Results.BadRequest("Cannot join a game that has already ended.");
+    }
+
+    if (gameRoom.Players.Count >= gameRoom.MaxPlayers)
+    {
+        return Results.BadRequest($"Game room is full. Maximum players allowed: {gameRoom.MaxPlayers}.");
+    }
+
+    var requestedName = request.PlayerName?.Trim();
+
+    if (string.IsNullOrWhiteSpace(requestedName))
     {
         return Results.BadRequest("Player name is required.");
     }
 
+    var nameAlreadyTaken = gameRoom.Players.Any(p => p.DisplayName.Trim().Equals(requestedName, StringComparison.OrdinalIgnoreCase));
+    if (nameAlreadyTaken)    {
+        return Results.BadRequest("A player with that name has already joined this room. Please choose a different name.");
+    }
+
     var player = new Player
     {
-        DisplayName = request.PlayerName,
+        DisplayName = requestedName,
         Color = PickColor(gameRoom.Players.Count)
     };
 
@@ -93,9 +110,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     StartGameRequest request,
     GameRoomStore gameRoomStore,
     GameEngine gameEngine,
-     IHubContext<GameHub> hubContext
-
-) =>
+     IHubContext<GameHub> hubContext) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
     if (gameRoom == null)
@@ -108,10 +123,20 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         return Results.BadRequest("Game has already started.");
     }
 
+    if (gameRoom.HasEnded)
+    {
+        return Results.BadRequest("Game has already ended.");
+    }
+
     var player = gameRoom.Players.FirstOrDefault(p => p.Id == request.PlayerId);
     if (player == null)
     {
         return Results.BadRequest("Player not found in the game room.");
+    }
+
+    if (gameRoom.HostPlayerId != request.PlayerId)
+    {
+        return Results.BadRequest("Only the host player can start the game.");
     }
 
     gameRoom.Tiles = gameEngine.GenerateTiles();

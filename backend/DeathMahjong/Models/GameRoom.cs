@@ -12,17 +12,17 @@ public class GameRoom
     public int CurrentPlayerIndex { get; set; } = 0;
 
     public bool HardCoreMode { get; set; } = false;
-    public bool HasStarted { get; set; } = false;
 
+    public bool HasStarted { get; set; } = false;
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
 
     public bool HasEnded { get; set; } = false;
-
     public GameEndReason? EndReason { get; set; }
-
     public DateTime? EndedAt { get; set; }
-
     public string? EndedByPlayerId { get; set; }
+
+    public int MaxPlayers { get; set; } = 12;
+    public int MinPlayers { get; set; } = 2;
 
     public string? CurrentPlayerId => Players.Count > 0 ? Players[CurrentPlayerIndex].Id : null;
 

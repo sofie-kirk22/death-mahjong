@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { abortGame, drawTile, getRoom } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
-import { clearGameSession, getPlayerIdForRoom} from "@/lib/gameSession";
+import { clearGameSession, getPlayerIdForRoom } from "@/lib/gameSession";
+import { PlayerDrawnTiles } from "@/components/PlayerDrawnTiles";
+import { PyramidBoard } from "@/components/PyramidBoard";
 
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
@@ -234,6 +236,16 @@ export default function GamePage() {
         <p className="text-xl font-semibold">{currentPlayer.displayName}</p>
       </section>
 
+      <section className="grid gap-4">
+        {gameRoom.players.map((player: any) => (
+          <PlayerDrawnTiles
+            key={player.id}
+            gameRoom={gameRoom}
+            player={player}
+          />
+        ))}
+      </section>
+
       {isHost && !gameRoom.hasEnded && (
         <button
           className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
@@ -312,40 +324,11 @@ export default function GamePage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-4 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        {gameRoom.tiles.map((tile: any) => {
-          const gameHasEnded = gameRoom.hasEnded;
-          const isDisabled = gameHasEnded || tile.isDrawn || !tile.isDrawable;
-
-          return (
-            <button
-              key={tile.id}
-              disabled={isDisabled}
-              className={[
-                "rounded border p-3 text-left transition",
-                gameHasEnded
-                  ? "cursor-not-allowed border-slate-300 bg-slate-100 text-slate-400 opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
-                  : tile.isDrawn
-                    ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
-                    : tile.isDrawable
-                      ? "border-green-500 bg-green-100 text-green-950 hover:bg-green-200 dark:border-green-500 dark:bg-green-950 dark:text-green-100 dark:hover:bg-green-900"
-                      : "cursor-not-allowed border-red-500 bg-red-100 text-red-950 opacity-60 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:opacity-50",
-              ].join(" ")}
-              onClick={() => handleDrawTile(tile.id)}
-            >
-              <div className="font-semibold">{tile.name}</div>
-
-              <div className="text-sm text-slate-600 dark:text-slate-300">
-                Value: {tile.value}
-              </div>
-
-              <div className="text-xs text-slate-500 dark:text-slate-400">
-                x:{tile.x} y:{tile.y} z:{tile.z}
-              </div>
-            </button>
-          );
-        })}
-      </section>
+      <PyramidBoard 
+        tiles={gameRoom.tiles} 
+        onDrawTile={handleDrawTile} 
+        disabled={gameRoom.hasEnded} 
+      />
 
       {gameRoom.hasEnded && (
         <section className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-100">
@@ -362,43 +345,80 @@ export default function GamePage() {
       </button>
 
       {showDebug && (
-        <section className="rounded-2xl border p-4">
-          <h2 className="mb-3 text-xl font-semibold">Tile debug view</h2>
+        <>
+          <section className="rounded-2xl border p-4">
+            <h2 className="mb-3 text-xl font-semibold">Tile debug view</h2>
 
-          <div className="max-h-96 overflow-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr>
-                  <th className="border-b p-2">Name</th>
-                  <th className="border-b p-2">Type</th>
-                  <th className="border-b p-2">X</th>
-                  <th className="border-b p-2">Y</th>
-                  <th className="border-b p-2">Z</th>
-                  <th className="border-b p-2">Drawn</th>
-                  <th className="border-b p-2">Drawable</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {gameRoom.tiles.map((tile: any) => (
-                  <tr key={tile.id}>
-                    <td className="border-b p-2">{tile.name}</td>
-                    <td className="border-b p-2">{tile.type}</td>
-                    <td className="border-b p-2">{tile.x}</td>
-                    <td className="border-b p-2">{tile.y}</td>
-                    <td className="border-b p-2">{tile.z}</td>
-                    <td className="border-b p-2">
-                      {tile.isDrawn ? "Yes" : "No"}
-                    </td>
-                    <td className="border-b p-2">
-                      {tile.isDrawable ? "Yes" : "No"}
-                    </td>
+            <div className="max-h-96 overflow-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="border-b p-2">Name</th>
+                    <th className="border-b p-2">Type</th>
+                    <th className="border-b p-2">X</th>
+                    <th className="border-b p-2">Y</th>
+                    <th className="border-b p-2">Z</th>
+                    <th className="border-b p-2">Drawn</th>
+                    <th className="border-b p-2">Drawable</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+
+                <tbody>
+                  {gameRoom.tiles.map((tile: any) => (
+                    <tr key={tile.id}>
+                      <td className="border-b p-2">{tile.name}</td>
+                      <td className="border-b p-2">{tile.type}</td>
+                      <td className="border-b p-2">{tile.x}</td>
+                      <td className="border-b p-2">{tile.y}</td>
+                      <td className="border-b p-2">{tile.z}</td>
+                      <td className="border-b p-2">
+                        {tile.isDrawn ? "Yes" : "No"}
+                      </td>
+                      <td className="border-b p-2">
+                        {tile.isDrawable ? "Yes" : "No"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-4 gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            {gameRoom.tiles.map((tile: any) => {
+              const gameHasEnded = gameRoom.hasEnded;
+              const isDisabled = gameHasEnded || tile.isDrawn || !tile.isDrawable;
+
+              return (
+                <button
+                  key={tile.id}
+                  disabled={isDisabled}
+                  className={[
+                    "rounded border p-3 text-left transition",
+                    gameHasEnded
+                      ? "cursor-not-allowed border-slate-300 bg-slate-100 text-slate-400 opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                      : tile.isDrawn
+                        ? "border-slate-200 bg-slate-100 text-slate-400 opacity-40 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                        : tile.isDrawable
+                          ? "border-green-500 bg-green-100 text-green-950 hover:bg-green-200 dark:border-green-500 dark:bg-green-950 dark:text-green-100 dark:hover:bg-green-900"
+                          : "cursor-not-allowed border-red-500 bg-red-100 text-red-950 opacity-60 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:opacity-50",
+                  ].join(" ")}
+                  onClick={() => handleDrawTile(tile.id)}
+                >
+                  <div className="font-semibold">{tile.name}</div>
+
+                  <div className="text-sm text-slate-600 dark:text-slate-300">
+                    Value: {tile.value}
+                  </div>
+
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    x:{tile.x} y:{tile.y} z:{tile.z}
+                  </div>
+                </button>
+              );
+            })}
+          </section>
+        </>
       )}
     </main>
   );

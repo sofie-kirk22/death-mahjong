@@ -4,7 +4,7 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
-export async function createRoom(hostName: string, hardcoreMode: boolean) {
+export async function createRoom(hostName: string, hardcoreMode: boolean, fullDeckMode: boolean) {
   const response = await fetch(`${API_URL}/api/gamerooms`, {
     method: "POST",
     headers: {
@@ -12,7 +12,8 @@ export async function createRoom(hostName: string, hardcoreMode: boolean) {
     },
     body: JSON.stringify({
       hostplayername: hostName,
-      hardcoreMode
+      hardCoreMode: hardcoreMode,
+      fullDeckMode: fullDeckMode
     }),
   });
 

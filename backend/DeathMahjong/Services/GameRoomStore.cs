@@ -8,9 +8,9 @@ public class GameRoomStore
     private readonly Dictionary<string, GameRoom> _roomsById = new();
     private readonly Dictionary<string, string> _roomIdsByCode = new();
 
-    public GameRoom CreateGameRoom(string hostPlayerName, bool hardCoreMode)
+    public GameRoom CreateGameRoom(string hostPlayerName, bool hardCoreMode, bool fullDeckMode)
     {
-        Console.WriteLine($"Creating game room with host player: {hostPlayerName}, hardCoreMode: {hardCoreMode}");
+        Console.WriteLine($"Creating game room with host player: {hostPlayerName}, hardCoreMode: {hardCoreMode}, fullDeckMode: {fullDeckMode}");
         var hostPlayer = new Player
         {
             DisplayName = hostPlayerName,
@@ -21,6 +21,7 @@ public class GameRoomStore
         {
             JoinCode = GenerateJoinCode(),
             HardCoreMode = hardCoreMode,
+            FullDeckMode = fullDeckMode,
             HostPlayerId = hostPlayer.Id
         };
         

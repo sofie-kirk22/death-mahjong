@@ -40,7 +40,7 @@ app.MapPost("/api/gamerooms", (
     {
         return Results.BadRequest("Host player name is required.");
     }
-    var gameRoom = gameRoomStore.CreateGameRoom(request.HostPlayerName, request.HardCoreMode);
+    var gameRoom = gameRoomStore.CreateGameRoom(request.HostPlayerName, request.HardCoreMode, request.FullDeckMode);
     return Results.Ok(gameRoom);
 });
 
@@ -139,7 +139,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         return Results.BadRequest("Only the host player can start the game.");
     }
 
-    gameRoom.Tiles = gameEngine.GenerateTiles();
+    gameRoom.Tiles = gameEngine.GenerateTiles(gameRoom.Players.Count, gameRoom.FullDeckMode);
     gameEngine.UpdateDrawableTiles(gameRoom);
     gameRoom.HasStarted = true;
     gameRoom.StartedAt = DateTime.UtcNow;

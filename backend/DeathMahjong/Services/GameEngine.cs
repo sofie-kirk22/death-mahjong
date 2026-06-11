@@ -20,21 +20,56 @@ public class GameEngine
         * Create Tile objects, shuffle them 
         * Assign their positions based on the standard Mahjong layout.
     */
-    public List<Tile> GenerateTiles()
+    public List<Tile> GenerateTiles(int playerCount, bool fullDeckMode)
     {
         Console.WriteLine("Generating tiles...");
+        
         var tiles = GetTilesFromJson();
 
+        if(fullDeckMode)
+        {
+            ShuffleTiles(tiles);
+            AssignActualGridPositions(tiles);
+            return tiles;
+        }
+
+        var config = GetTileSetupConfig(playerCount); 
+
+        var windOrder = new[] { "East Wind", "South Wind", "West Wind", "North Wind" };
+
+        var selectedWindNames = windOrder.Take(config.WindSuitCount).ToHashSet();
+
+        var suitTiles = tiles
+            .Where(t => t.Type == TileType.Character || t.Type == TileType.Bamboo || t.Type == TileType.Dot)
+            .ToList();
+
+        var windTiles = tiles
+            .Where(t => t.Type == TileType.Wind && selectedWindNames.Contains(t.Name))
+            .GroupBy(t => t.Name)
+            .Take(config.WindSuitCount)
+            .SelectMany(group => group.Take(4))
+            .ToList();
+
+        var dragonTiles = tiles
+            .Where(t => t.Type == TileType.Dragon)
+            .Take(config.DragonCount)
+            .ToList();
+
+        var selectedTiles = suitTiles
+            .Concat(windTiles)
+            .Concat(dragonTiles)
+            .ToList();
+
         //Shuffle tiles
-        ShuffleTiles(tiles);
+        ShuffleTiles(selectedTiles);
 
         // Assign temporary grid positions
         //AssignTemporaryGridPositions(tiles);
 
         // Assign actual grid positions based on the standard Mahjong layout
-        AssignActualGridPositions(tiles);
+        AssignActualGridPositions(selectedTiles);
 
-        return tiles;
+        return selectedTiles;
     }
 
     /*
@@ -377,5 +412,28 @@ public class GameEngine
             throw new InvalidOperationException("Only the host can abort the game.");
 
         EndGame(gameRoom, GameEndReason.AbortEnd, playerId);
+    }
+
+    private TileSetupConfig GetTileSetupConfig(int playerCount)
+    {
+        if (playerCount < 2)
+        {
+            throw new InvalidOperationException("At least 2 players are required.");
+        }
+
+        if (playerCount > 12)
+        {
+            throw new InvalidOperationException("Maximum number of players is 12.");
+        }
+
+        var windSuitCount = Math.Min((int)Math.Ceiling(playerCount / 2.0), 4);
+
+        return new TileSetupConfig
+        {
+            PlayerCount = playerCount,
+            WindSuitCount = windSuitCount,
+            WindCount = windSuitCount * 4, // Each wind suit has 4 tiles
+            DragonCount = playerCount
+        };
     }
 }

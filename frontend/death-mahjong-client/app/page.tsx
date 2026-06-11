@@ -12,13 +12,14 @@ export default function HomePage() {
   const [joinName, setJoinName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [hardcoreMode, setHardcoreMode] = useState(false);
+  const [fullDeckMode, setFullDeckMode] = useState(false);
   const [error, setError] = useState("");
 
   async function handleCreateRoom() {
     try {
       setError("");
 
-      const room = await createRoom(hostName, hardcoreMode);
+      const room = await createRoom(hostName, hardcoreMode, fullDeckMode);
 
       const hostPlayer = room.players[0];
 
@@ -37,8 +38,8 @@ export default function HomePage() {
       const result = await joinRoom(joinCode, joinName);
 
       saveGameSession(
-        result.gameRoom.id, 
-        result.player.id, 
+        result.gameRoom.id,
+        result.player.id,
         result.gameRoom.joinCode
       );
 
@@ -75,6 +76,16 @@ export default function HomePage() {
             onChange={(e) => setHardcoreMode(e.target.checked)}
           />
           Hardcore mode
+        </label>
+
+        <label className="mb-3 flex gap-2">
+          <input
+            type="checkbox"
+            checked={fullDeckMode}
+            onChange={(event) => setFullDeckMode(event.target.checked)}
+          />
+
+          Full Deck mode
         </label>
 
         <button

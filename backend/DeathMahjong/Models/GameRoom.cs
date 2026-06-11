@@ -12,6 +12,7 @@ public class GameRoom
     public int CurrentPlayerIndex { get; set; } = 0;
 
     public bool HardCoreMode { get; set; } = false;
+    public bool FullDeckMode { get; set; } = false;
 
     public bool HasStarted { get; set; } = false;
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;

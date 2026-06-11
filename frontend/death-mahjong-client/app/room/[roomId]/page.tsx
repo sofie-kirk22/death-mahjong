@@ -176,6 +176,20 @@ export default function RoomPage() {
         </div>
       )}
 
+      <div className="flex gap-2 text-xs">
+        {gameRoom.hardCoreMode && (
+          <span className="rounded-full bg-red-100 px-2 py-1 font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
+            Hardcore
+          </span>
+        )}
+
+        {gameRoom.fullDeckMode && (
+          <span className="rounded-full bg-purple-100 px-2 py-1 font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+            Full deck
+          </span>
+        )}
+      </div>
+
       <section className="rounded-2xl border p-4">
         <p className="text-sm text-gray-500">Join code</p>
         <p className="text-4xl font-bold tracking-widest">{gameRoom.joinCode ?? "No join code available"}</p>

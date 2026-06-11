@@ -246,15 +246,6 @@ export default function GamePage() {
         ))}
       </section>
 
-      {isHost && !gameRoom.hasEnded && (
-        <button
-          className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
-          onClick={handleAbortGame}
-        >
-          Abort game
-        </button>
-      )}
-
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="mb-3 text-xl font-semibold">Player history</h2>
 
@@ -335,6 +326,15 @@ export default function GamePage() {
           <h2 className="text-xl font-semibold">Game ended</h2>
           <p>Reason: {gameRoom.endReason}</p>
         </section>
+      )}
+
+      {isHost && !gameRoom.hasEnded && (
+        <button
+          className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
+          onClick={handleAbortGame}
+        >
+          Abort game
+        </button>
       )}
 
       <button

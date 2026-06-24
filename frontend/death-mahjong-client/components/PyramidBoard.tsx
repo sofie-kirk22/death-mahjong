@@ -37,14 +37,17 @@ export function PyramidBoard({
     });
 
   return (
-    <div className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 dark:border-slate-800 dark:bg-slate-950">
+    <div className="flex min-h-[620px] items-center justify-center overflow-auto rounded-2xl border border-emerald-700 bg-emerald-800 p-4 shadow-inner dark:border-emerald-950 dark:bg-emerald-800">
       <div className="relative h-[520px] w-[520px]">
         {visibleTiles.map((tile: any) => {
           const blockedOnBottom = isBlockedOnBottom(tile, tiles);
           const imageSrc = getBackTileImageSrc(!blockedOnBottom);
 
-          const left = tile.x * xSpacing - tile.z * zOffset;
-          const top = tile.y * ySpacing - tile.z * zOffset;
+          const boardOffsetX = 80;
+          const boardOffsetY = 40;
+
+          const left = tile.x * xSpacing - tile.z * zOffset + boardOffsetX;
+          const top = tile.y * ySpacing - tile.z * zOffset + boardOffsetY;
 
           const isClickable = tile.isDrawable && !disabled;
 

@@ -117,6 +117,30 @@ export default function GamePage() {
     };
   }, [roomId, router]);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.code !== "Space") return;
+
+      const target = event.target as HTMLElement;
+
+      const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+
+      if (isTyping) return;
+
+      if (event.repeat) return;
+
+      event.preventDefault();
+
+      void handleRandomDrawTile();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [gameRoom, roomId]);
+
   async function handleDrawTile(tileId: string) {
     try {
       setError("");
@@ -159,6 +183,41 @@ export default function GamePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not draw tile");
     }
+  }
+
+  async function handleRandomDrawTile() {
+    if (!gameRoom) return;
+
+    if (gameRoom.hasEnded) {
+      setError("Game has already ended.");
+      return;
+    }
+
+    const playerId = getPlayerIdForRoom(roomId);
+
+    if (!playerId) {
+      setError("Missing playerId");
+      return;
+    }
+
+    const currentPlayerId = gameRoom.currentPlayerId ?? gameRoom.players[gameRoom.currentPlayerIndex]?.id;
+
+    if (playerId !== currentPlayerId) {
+      setError("It's not your turn to draw a tile.");
+      return;
+    }
+
+    const freeTiles = gameRoom.tiles.filter((tile: any) => !tile.isDrawn && tile.isDrawable);
+
+    if (freeTiles.length === 0) {
+      setError("No drawable tiles left.");
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * freeTiles.length);
+    const randomTile = freeTiles[randomIndex];
+
+    await handleDrawTile(randomTile.id);
   }
 
   async function handleAbortGame() {

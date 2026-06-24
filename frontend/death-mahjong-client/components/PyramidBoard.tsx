@@ -18,11 +18,14 @@ export function PyramidBoard({
   const ySpacing = 31;
   const zOffset = 0;
 
-  function isBottomRowOfTier(tile: any) {
-    const tilesInSameTier = tiles.filter((t: any) => t.z === tile.z);
-    const maxY = Math.max(...tilesInSameTier.map((t: any) => t.y));
-
-    return tile.y === maxY;
+  function isBlockedOnBottom(tile: any, tiles: any[]) {
+    return tiles.some(
+      (otherTile: any) =>
+        !otherTile.isDrawn &&
+        otherTile.z === tile.z &&
+        otherTile.x === tile.x &&
+        otherTile.y === tile.y + 2
+    );
   }
 
   const visibleTiles = tiles
@@ -37,8 +40,8 @@ export function PyramidBoard({
     <div className="overflow-auto rounded-2xl border border-slate-200 bg-slate-100 p-4 dark:border-slate-800 dark:bg-slate-950">
       <div className="relative h-[520px] w-[520px]">
         {visibleTiles.map((tile: any) => {
-          const isBottomRow = isBottomRowOfTier(tile);
-          const imageSrc = getBackTileImageSrc(isBottomRow);
+          const blockedOnBottom = isBlockedOnBottom(tile, tiles);
+          const imageSrc = getBackTileImageSrc(!blockedOnBottom);
 
           const left = tile.x * xSpacing - tile.z * zOffset;
           const top = tile.y * ySpacing - tile.z * zOffset;

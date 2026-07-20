@@ -24,7 +24,7 @@ export default function RoomPage() {
   const myPlayerId = getPlayerIdForRoom(roomId);
 
   const me = myPlayerId
-    ? gameRoom?.players.find((player: any) => player.id === myPlayerId)
+    ? gameRoom?.players?.find((player: any) => player.id === myPlayerId)
     : null;
 
   const isHost = myPlayerId === gameRoom?.hostPlayerId;
@@ -163,68 +163,167 @@ export default function RoomPage() {
   }
 
   if (!gameRoom) {
-    return <main className="p-8">Loading room...</main>;
+    return (
+      <main
+        className="flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat p-4 text-slate-950 dark:text-slate-100"
+        style={{
+          backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
+        }}
+      >
+        <div className="rounded-2xl border border-slate-200 bg-white/85 p-6 shadow-2xl backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/85">
+          {error ? (
+            <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+              {error}
+            </div>
+          ) : (
+            "Loading room..."
+          )}
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-6 p-8">
-      <h1 className="text-3xl font-bold">Lobby</h1>
+    <main
+      className="min-h-screen bg-cover bg-center bg-no-repeat p-4 text-slate-950 dark:text-slate-100"
+      style={{
+        backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
+      }}
+    >
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-3xl flex-col gap-6 rounded-3xl bg-white/85 p-6 shadow-2xl backdrop-blur-sm dark:bg-slate-950/85">
+        <header className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium uppercase tracking-[0.3em] text-red-700 dark:text-red-400">
+            Lobby
+          </p>
 
-      {error && (
-        <div className="rounded-lg border border-red-300 p-3 text-red-700">
-          {error}
-        </div>
-      )}
+          <div className="mt-2 flex items-center justify-center gap-3">
+            <h1 className="text-4xl font-bold tracking-wide">Death Mahjong</h1>
 
-      <div className="flex gap-2 text-xs">
-        {gameRoom.hardCoreMode && (
-          <span className="rounded-full bg-red-100 px-2 py-1 font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
-            Hardcore
-          </span>
-        )}
-
-        {gameRoom.fullDeckMode && (
-          <span className="rounded-full bg-purple-100 px-2 py-1 font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-            Full deck
-          </span>
-        )}
-      </div>
-
-      <section className="rounded-2xl border p-4">
-        <p className="text-sm text-gray-500">Join code</p>
-        <p className="text-4xl font-bold tracking-widest">{gameRoom.joinCode ?? "No join code available"}</p>
-      </section>
-
-      <section className="rounded-2xl border p-4">
-        <h2 className="mb-3 text-xl font-semibold">Players</h2>
-
-        <ul className="space-y-2">
-          {(gameRoom.players ?? []).map((player: any) => (
-            <li key={player.id} className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
               <span
-                className="h-4 w-4 rounded-full"
-                style={{ backgroundColor: player.color }}
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: me?.color ?? "#94a3b8" }}
               />
-              <span>{player.displayName}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+              <span>{me?.displayName ?? "Unknown"}</span>
+            </div>
+          </div>
 
-      {isHost && !gameRoom.hasStarted && (
-        <button
-          onClick={handleStartGame}
-          className="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
-        >
-          Start game
-        </button>
-      )}
+          <div className="mt-4 flex justify-center gap-2 text-xs">
+            {gameRoom.hardCoreMode && (
+              <span className="rounded-full bg-red-100 px-2 py-1 font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
+                Hardcore
+              </span>
+            )}
 
-      {!isHost && !gameRoom.hasStarted && (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Waiting for the host to start the game.
-        </p>
-      )}
+            {gameRoom.fullDeckMode && (
+              <span className="rounded-full bg-purple-100 px-2 py-1 font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                Full deck
+              </span>
+            )}
+
+            {isHost && (
+              <span className="rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                Host
+              </span>
+            )}
+          </div>
+        </header>
+
+        {error && (
+          <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+            {error}
+          </div>
+        )}
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Join code
+          </p>
+
+          <p className="mt-2 font-mono text-5xl font-bold tracking-[0.25em] text-slate-950 dark:text-slate-100">
+            {gameRoom.joinCode ?? "------"}
+          </p>
+
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Share this code with the other players.
+          </p>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Players</h2>
+
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {(gameRoom.players ?? []).length}/{gameRoom.maxPlayers ?? 12}
+            </span>
+          </div>
+
+          <ul className="space-y-2">
+            {(gameRoom.players ?? []).map((player: any) => {
+              const playerIsHost = player.id === gameRoom.hostPlayerId;
+              const playerIsMe = player.id === myPlayerId;
+
+              return (
+                <li
+                  key={player.id}
+                  className={[
+                    "flex items-center justify-between rounded-xl border p-3",
+                    playerIsMe
+                      ? "border-amber-300 bg-amber-50 dark:border-amber-600 dark:bg-amber-950/40"
+                      : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-4 w-4 rounded-full"
+                      style={{ backgroundColor: player.color ?? "#94a3b8" }}
+                    />
+
+                    <span className="font-medium">{player.displayName}</span>
+                  </div>
+
+                  <div className="flex gap-1.5">
+                    {playerIsMe && (
+                      <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-900 dark:bg-amber-500/20 dark:text-amber-200">
+                        You
+                      </span>
+                    )}
+
+                    {playerIsHost && (
+                      <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                        Host
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {isHost && !gameRoom.hasStarted && (
+            <button
+              onClick={handleStartGame}
+              className="w-full rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
+            >
+              Start game
+            </button>
+          )}
+
+          {!isHost && !gameRoom.hasStarted && (
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+              Waiting for the host to start the game.
+            </p>
+          )}
+
+          {gameRoom.hasStarted && (
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+              This game has already started.
+            </p>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

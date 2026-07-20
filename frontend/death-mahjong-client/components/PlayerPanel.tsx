@@ -11,14 +11,6 @@ export default function PlayerPanel({
     gameRoom: any;
     isCurrentPlayer: boolean;
 }) {
-    if (!player) {
-        return (
-            <section className="min-h-28 rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-3 text-slate-400 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-600">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-400">Player {playerNumber}</p>
-            </section>
-        );
-    }
-
     const summary = gameRoom.playerDrinksSummaries?.find(
         (summary: any) => summary.playerId === player.id
     );

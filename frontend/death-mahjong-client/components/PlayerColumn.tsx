@@ -1,25 +1,30 @@
 import PlayerPanel from "./PlayerPanel";
 
-export default function PlayerColumn({
-    players,
-    gameRoom,
-    startNumber,
-    currentPlayerId,
-}: {
-    players: any[];
+type PlayerSlot = {
+    player: any;
+    playerNumber: number;
+};
+
+type PlayerColumnProps = {
+    slots: PlayerSlot[];
     gameRoom: any;
-    startNumber: number;
-    currentPlayerId: string | null;
-}) {
+    currentPlayerId?: string;
+};
+
+export default function PlayerColumn({
+    slots,
+    gameRoom,
+    currentPlayerId,
+}: PlayerColumnProps) {
     return (
         <aside className="flex flex-col gap-3">
-            {players.map((player, index) => (
+            {slots.map((slot) => (
                 <PlayerPanel
-                    key={player?.id ?? `empty-${startNumber + index}`}
-                    player={player}
-                    playerNumber={startNumber + index}
+                    key={slot.player.id}
+                    player={slot.player}
+                    playerNumber={slot.playerNumber}
                     gameRoom={gameRoom}
-                    isCurrentPlayer={player?.id === currentPlayerId}
+                    isCurrentPlayer={slot.player.id === currentPlayerId}
                 />
             ))}
         </aside>

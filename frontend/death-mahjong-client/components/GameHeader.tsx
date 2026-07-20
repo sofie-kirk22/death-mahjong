@@ -22,51 +22,64 @@ export default function GameHeader({
 
         return () => window.clearInterval(intervalId);
     }, [gameRoom.endedAt]);
+
     return (
-        <header className="rounded-2xl border border-emerald-700 bg-emerald-700 p-4 shadow-sm dark:border-emerald-950 dark:bg-emerald-950">
-            <div className="mb-4 flex items-center justify-center gap-3">
-                <h1 className="text-3xl font-bold tracking-wide">Death Mahjong</h1>
+        <header className="rounded-2xl border border-emerald-700 bg-emerald-700 p-4 text-center shadow-sm dark:border-emerald-950 dark:bg-emerald-950">
+            <p className="text-xs font-medium uppercase tracking-[0.25em] text-red-400 dark:text-red-400">
+                Death Mahjong
+            </p>
 
-                <div className="flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
-                    <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: me?.color ?? "#94a3b8" }}
-                    />
-                    <span>{me?.displayName ?? "Unknown"}</span>
-                </div>
+            <p className="mt-2 font-mono text-3xl font-bold">
+                {formatDuration(gameRoom.startedAt, gameRoom.endedAt, now)}
+            </p>
+
+            <div className="mt-3 flex items-center justify-center gap-2 text-sm">
+                <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: me?.color ?? "#94a3b8" }}
+                />
+
+                <span className="text-slate-950 dark:text-slate-400">You:</span>
+
+                <span className="font-semibold">
+                    {me?.displayName ?? "Unknown"}
+                </span>
             </div>
 
-            {error && (
-                <div className="mb-4 rounded-lg border border-red-800 bg-red-950 p-3 text-red-200">
-                    {error}
-                </div>
-            )}
+            <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs">
+                {currentPlayer && (
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        Current: {currentPlayer.displayName}
+                    </span>
+                )}
 
-            <div className="mx-auto max-w-xl rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2 text-center dark:border-slate-700 dark:bg-slate-950/80">
-                <p className="text-sm text-slate-600">Duration</p>
-                <p className="font-mono text-xl font-semibold">
-                    {formatDuration(gameRoom.startedAt, gameRoom.endedAt, now)}
-                </p>
-            </div>
-
-            <div className="mt-3 flex justify-center gap-2 text-xs">
                 {gameRoom.hardCoreMode && (
-                    <span className="rounded-full bg-red-950 px-2 py-1 font-medium text-red-300">
+                    <span className="rounded-full bg-red-100 px-2.5 py-1 font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
                         Hardcore
                     </span>
                 )}
 
                 {gameRoom.fullDeckMode && (
-                    <span className="rounded-full bg-purple-950 px-2 py-1 font-medium text-purple-300">
+                    <span className="rounded-full bg-purple-100 px-2.5 py-1 font-medium text-purple-700 dark:bg-purple-950 dark:text-purple-300">
                         Full deck
                     </span>
                 )}
             </div>
+
+            {error && (
+                <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+                    {error}
+                </div>
+            )}
         </header>
     );
 }
 
-function formatDuration(startedAt?: string, endedAt?: string | null, now = Date.now()) {
+function formatDuration(
+    startedAt?: string,
+    endedAt?: string | null,
+    now = Date.now()
+) {
     if (!startedAt) return "00:00:00";
 
     const start = new Date(startedAt).getTime();

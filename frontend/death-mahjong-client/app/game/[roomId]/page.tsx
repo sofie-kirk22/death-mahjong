@@ -14,6 +14,7 @@ import DebugPanel from "@/components/DebugPanel";
 import GameHeader from "@/components/GameHeader";
 import RemainingTilesBar from "@/components/RemainingTilesBar";
 import PlayerColumn from "@/components/PlayerColumn";
+import MobileGameView from "@/components/MobileGameView";
 
 export default function GamePage() {
   const params = useParams<{ roomId: string }>();
@@ -27,9 +28,6 @@ export default function GamePage() {
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
   const [showDebug, setShowDebug] = useState(false);
-
-  const myPlayerId = getPlayerIdForRoom(roomId);
-  const me = gameRoom?.players?.find((p: any) => p.id === myPlayerId);
 
   useEffect(() => {
     async function loadRoom() {
@@ -265,24 +263,50 @@ export default function GamePage() {
 
   const players = gameRoom.players ?? [];
 
-  const playerSlots = Array.from({ length: 12 }, (_, index) => { return players[index] ?? null });
+  const playerSlots = players.map((player: any, index: number) => ({
+    player,
+    playerNumber: index + 1,
+  }));
 
-  const leftPlayerSlots = playerSlots.slice(0, 6);
-  const rightPlayerSlots = playerSlots.slice(6, 12);
+  const leftPlayerSlots = playerSlots.filter(
+    (slot: any) => slot.playerNumber % 2 === 1
+  );
 
-  const currentPlayer = gameRoom.players?.[gameRoom.currentPlayerIndex] ?? null;
+  const rightPlayerSlots = playerSlots.filter(
+    (slot: any) => slot.playerNumber % 2 === 0
+  );
 
+  const currentPlayer = players[gameRoom.currentPlayerIndex] ?? null;
   const currentPlayerId = currentPlayer?.id;
 
   const myPlayerID =
     typeof window !== "undefined" ? getPlayerIdForRoom(roomId) : null;
 
+  const me = myPlayerID
+    ? players.find((player: any) => player.id === myPlayerID)
+    : null;
+
   const isHost = myPlayerID === gameRoom.hostPlayerId;
 
-  const latestMovePlayer =
-    latestMove && gameRoom?.players
-      ? gameRoom.players.find((player: any) => player.id === latestMove.playerId)
-      : null;
+  const mySummary = myPlayerID
+    ? gameRoom.playerDrinksSummaries?.find(
+      (summary: any) => summary.playerId === myPlayerID
+    )
+    : null;
+
+  const myMoves = myPlayerID
+    ? gameRoom.moves?.filter((move: any) => move.playerId === myPlayerID) ?? []
+    : [];
+
+  const myPlayerIndex = myPlayerID
+    ? players.findIndex((player: any) => player.id === myPlayerID)
+    : -1;
+
+  const playersBeforeMyTurn =
+    myPlayerIndex === -1 || players.length === 0
+      ? null
+      : (myPlayerIndex - gameRoom.currentPlayerIndex + players.length) %
+      players.length;
 
   return (
     <main
@@ -291,11 +315,24 @@ export default function GamePage() {
         backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
       }}
     >
-      <div className="grid min-h-[calc(100vh-2rem)] gap-4 lg:grid-cols-[18rem_1fr_18rem]">
-        <PlayerColumn
-          players={leftPlayerSlots}
+      <section className="lg:hidden">
+        <MobileGameView
           gameRoom={gameRoom}
-          startNumber={1}
+          me={me}
+          mySummary={mySummary}
+          myMoves={myMoves}
+          currentPlayer={currentPlayer}
+          playersBeforeMyTurn={playersBeforeMyTurn}
+          error={error}
+          onDrawTile={handleDrawTile}
+          onRandomDrawTile={handleRandomDrawTile}
+        />
+      </section>
+
+      <div className="hidden min-h-[calc(100vh-2rem)] gap-4 lg:grid lg:grid-cols-[18rem_1fr_18rem]">
+        <PlayerColumn
+          slots={leftPlayerSlots}
+          gameRoom={gameRoom}
           currentPlayerId={currentPlayerId}
         />
 
@@ -333,15 +370,6 @@ export default function GamePage() {
             </button>
           )}
 
-          {/* Debug panel toggle button 
-          <button
-            className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 bg-slate-200 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:bg-slate-800 dark:hover:bg-slate-800"
-            onClick={() => setShowDebug(!showDebug)}
-          >
-            {showDebug ? "Hide debug" : "Show debug"}
-          </button>
-          */}
-
           {showDebug && (
             <DebugPanel
               tiles={gameRoom.tiles}
@@ -352,9 +380,8 @@ export default function GamePage() {
         </section>
 
         <PlayerColumn
-          players={rightPlayerSlots}
+          slots={rightPlayerSlots}
           gameRoom={gameRoom}
-          startNumber={7}
           currentPlayerId={currentPlayerId}
         />
       </div>

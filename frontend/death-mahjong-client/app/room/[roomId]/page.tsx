@@ -29,8 +29,6 @@ export default function RoomPage() {
 
   const isHost = myPlayerId === gameRoom?.hostPlayerId;
 
-  console.log("roomId", roomId);
-
   useEffect(() => {
     if (!roomId) return;
 
@@ -64,8 +62,6 @@ export default function RoomPage() {
       try {
         connection.on("PlayerJoined", (payload) => {
           if (cancelled) return;
-
-          console.log("PlayerJoined payload:", payload);
 
           const updatedRoom = payload.gameRoom ?? payload.room ?? payload;
 

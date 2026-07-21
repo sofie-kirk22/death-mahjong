@@ -21,9 +21,6 @@ export default function GamePage() {
   const roomId = params.roomId;
   const router = useRouter();
 
-  console.log("roomId", roomId);
-  console.log("params", params);
-
   const [gameRoom, setRoom] = useState<any>(null);
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
@@ -237,8 +234,6 @@ export default function GamePage() {
 
       const result = await abortGame(roomId, playerId);
 
-      console.log("abort result:", result);
-
       const updatedRoom = result.gameRoom ?? result.room ?? result;
 
       if (!updatedRoom?.id) {
@@ -256,10 +251,6 @@ export default function GamePage() {
   if (!gameRoom) {
     return <main className="p-8">Loading game...</main>;
   }
-
-  console.log("room:", gameRoom);
-  console.log("playerDrinkSummaries:", gameRoom.playerDrinkSummaries);
-  console.log("remainingTileSummary:", gameRoom.remainingTileSummary);
 
   const players = gameRoom.players ?? [];
 

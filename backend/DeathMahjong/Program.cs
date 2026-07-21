@@ -12,12 +12,24 @@ builder.Services.AddSingleton<GameEngine>();
 
 builder.Services.AddSignalR();
 
+var port = Environment.GetEnvironmentVariable("PORT");
+
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
+var allowedOrigins =
+    builder.Configuration
+        .GetSection("AllowedOrigins")
+        .Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -29,6 +41,17 @@ var app = builder.Build();
 app.UseCors("frontend");
 
 app.MapHub<GameHub>("/hubs/gamehub");
+
+app.MapGet("/", () => Results.Ok("Death Mahjong backend is running"));
+
+app.MapGet("/health", () =>
+{
+    return Results.Ok(new
+    {
+        status = "ok",
+        app = "Death Mahjong"
+    });
+});
 
 app.MapPost("/api/gamerooms", (
     CreateRoomRequest request,

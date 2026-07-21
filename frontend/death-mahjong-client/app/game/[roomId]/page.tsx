@@ -324,8 +324,10 @@ export default function GamePage() {
           currentPlayer={currentPlayer}
           playersBeforeMyTurn={playersBeforeMyTurn}
           error={error}
+          isHost={isHost}
           onDrawTile={handleDrawTile}
           onRandomDrawTile={handleRandomDrawTile}
+          onAbortGame={handleAbortGame}
         />
       </section>
 

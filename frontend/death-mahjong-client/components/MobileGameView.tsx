@@ -1,4 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
+
 import { PyramidBoard } from "./PyramidBoard";
 import { getTileImageSrc } from "@/lib/tileImages";
 
@@ -10,8 +13,10 @@ export default function MobileGameView({
     currentPlayer,
     playersBeforeMyTurn,
     error,
+    isHost,
     onDrawTile,
     onRandomDrawTile,
+    onAbortGame,
 }: {
     gameRoom: any;
     me: any;
@@ -20,8 +25,10 @@ export default function MobileGameView({
     currentPlayer: any;
     playersBeforeMyTurn: number | null;
     error: string;
+    isHost: boolean;
     onDrawTile: (tileId: string) => void;
     onRandomDrawTile: () => void;
+    onAbortGame: () => void;
 }) {
     const [now, setNow] = useState(Date.now());
 
@@ -45,10 +52,10 @@ export default function MobileGameView({
             : playersBeforeMyTurn === 0
                 ? "Your turn"
                 : `${playersBeforeMyTurn} player${playersBeforeMyTurn === 1 ? "" : "s"
-                } before your turn`;
+                } before it is your turn`;
 
     return (
-        <div className="flex min-h-[calc(100vh-2rem)] flex-col gap-4 rounded-3xl bg-white/85 p-4 shadow-2xl backdrop-blur-sm dark:bg-slate-950/85">
+        <div className="flex min-h-[calc(100vh-2rem)] flex-col gap-4 rounded-3xl bg-white/60 p-4 shadow-2xl backdrop-blur-sm dark:bg-slate-950/60">
             <header className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-medium uppercase tracking-[0.25em] text-red-700 dark:text-red-400">
                     Death Mahjong
@@ -91,6 +98,14 @@ export default function MobileGameView({
                 <p className="mt-1 text-sm font-medium">{turnText}</p>
             </section>
 
+            <button
+                onClick={onRandomDrawTile}
+                disabled={!isMyTurn || gameRoom.hasEnded}
+                className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-emerald-950 dark:text-emerald-100 dark:hover:bg-emerald-900"
+            >
+                Draw random free tile
+            </button>
+
             <section className="rounded-3xl border border-emerald-700 bg-emerald-700 p-3 shadow-inner dark:border-emerald-950 dark:bg-emerald-950">
                 <div className="overflow-auto">
                     <div className="min-w-[520px]">
@@ -102,14 +117,6 @@ export default function MobileGameView({
                     </div>
                 </div>
             </section>
-
-            <button
-                onClick={onRandomDrawTile}
-                disabled={!isMyTurn || gameRoom.hasEnded}
-                className="rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
-            >
-                Draw random free tile
-            </button>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <h2 className="mb-3 text-lg font-semibold">Your statistics</h2>
@@ -158,6 +165,15 @@ export default function MobileGameView({
                     </div>
                 </details>
             </section>
+
+            {isHost && !gameRoom.hasEnded && (
+                <button
+                    className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
+                    onClick={onAbortGame}
+                >
+                    Abort game
+                </button>
+            )}
         </div>
     );
 }

@@ -98,7 +98,7 @@ export default function ProfilePage() {
       <main
         className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-4 pt-24 text-slate-950 dark:text-slate-100"
         style={{
-          backgroundImage: "url('/images/backgrounds/wood-table.png')",
+          backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
         }}
       >
         <div className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-6xl flex-col gap-6 rounded-3xl bg-white/85 p-6 shadow-2xl backdrop-blur-sm dark:bg-slate-950/85">

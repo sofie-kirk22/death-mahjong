@@ -21,4 +21,8 @@ public class GameRoomEntity
 
     public int MaxPlayers { get; set; } = 12;
     public int MinPlayers { get; set; } = 2;
+
+    public List<GamePlayerEntity> Players { get; set; } = new();
+    public List<GameTileEntity> Tiles { get; set; } = new();
+    public List<GameMoveEntity> Moves { get; set; } = new();
 }

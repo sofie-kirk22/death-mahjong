@@ -172,7 +172,8 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
     string joinCode,
     JoinRoomRequest request,
     GameRoomStore gameRoomStore,
-    IHubContext<GameHub> hubContext
+    IHubContext<GameHub> hubContext,
+    AppDbContext db
 ) =>
 {
     var gameRoom = gameRoomStore.GetByJoinCode(joinCode);
@@ -214,13 +215,34 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
         Color = PickColor(gameRoom.Players.Count)
     };
 
+    var roomExistsInDatabase = await db.GameRooms
+        .AnyAsync(room => room.Id == gameRoom.Id);
+
+    if (!roomExistsInDatabase)
+    {
+        return Results.BadRequest("Game room exists in memory, but was not found in the database.");
+    }
+
+    var playerEntity = new GamePlayerEntity
+    {
+        Id = player.Id,
+        GameRoomId = gameRoom.Id,
+        UserId = null,
+        DisplayName = player.DisplayName,
+        Color = player.Color,
+        JoinedAt = DateTime.UtcNow
+    };
+
+    db.GamePlayers.Add(playerEntity);
+    await db.SaveChangesAsync();
+
     gameRoom.Players.Add(player);
 
     await hubContext.Clients.Group(gameRoom.Id).SendAsync("PlayerJoined", new
-        {
-            gameRoom, 
-            player
-        });
+    {
+        gameRoom,
+        player
+    });
 
     return Results.Ok(new
     {

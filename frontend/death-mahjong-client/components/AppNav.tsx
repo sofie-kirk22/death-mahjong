@@ -17,9 +17,9 @@ export default function AppNav() {
                     <Image
                         src="/images/icon/Icon.png"
                         alt="Death Mahjong logo"
-                        width={32}
-                        height={32}
-                        className="h-8 w-8 object-contain"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 object-contain"
                     />
 
                     <span>Death Mahjong</span>

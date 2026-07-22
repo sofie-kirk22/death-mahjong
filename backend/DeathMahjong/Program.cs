@@ -620,6 +620,45 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
 
 var users = app.MapGroup("/api/users");
 
+users.MapGet("/by-display-name", async (
+    string? displayName,
+    AppDbContext db) =>
+{
+
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        return Results.BadRequest("Display name is required.");
+    }
+
+    var normalizedDisplayName = displayName.Trim().ToUpper();
+
+    var user = await db.Users
+        .AsNoTracking()
+        .Where(user => user.DisplayName.ToUpper() == normalizedDisplayName)
+        .Select(user => new
+        {
+            user.Id,
+            user.DisplayName,
+            user.CreatedAt
+        })
+        .FirstOrDefaultAsync();
+
+    if (user is null)
+    {
+        return Results.Ok(new
+        {
+            Exists = false,
+            User = (object?)null
+        });
+    }
+
+    return Results.Ok(new
+    {
+        Exists = true,
+        User = user
+    });
+});
+
 users.MapPost("/", async (
     CreateUserRequest request,
     AppDbContext db) =>
@@ -629,6 +668,24 @@ users.MapPost("/", async (
     if (string.IsNullOrWhiteSpace(displayName))
     {
         return Results.BadRequest("Display name is required.");
+    }
+
+    var normalizedDisplayName = displayName.ToUpper();
+
+    var existingUser = await db.Users
+        .FirstOrDefaultAsync(user =>
+            user.DisplayName.ToUpper() == normalizedDisplayName
+        );
+
+    if (existingUser is not null)
+    {
+        return Results.Ok(new
+        {
+            existingUser.Id,
+            existingUser.DisplayName,
+            existingUser.CreatedAt,
+            WasCreated = false
+        });
     }
 
     var user = new UserEntity
@@ -643,7 +700,8 @@ users.MapPost("/", async (
     {
         user.Id,
         user.DisplayName,
-        user.CreatedAt
+        user.CreatedAt,
+        WasCreated = true
     });
 });
 
@@ -677,6 +735,18 @@ users.MapPut("/{userId}", async (
     if (string.IsNullOrWhiteSpace(displayName))
     {
         return Results.BadRequest("Display name is required.");
+    }
+
+    var normalizedDisplayName = displayName.ToUpper();
+
+    var nameTakenByAnotherUser = await db.Users.AnyAsync(user =>
+        user.Id != userId &&
+        user.DisplayName.ToUpper() == normalizedDisplayName
+    );
+
+    if (nameTakenByAnotherUser)
+    {
+        return Results.BadRequest("That display name is already used by another user.");
     }
 
     var user = await db.Users.FirstOrDefaultAsync(user => user.Id == userId);

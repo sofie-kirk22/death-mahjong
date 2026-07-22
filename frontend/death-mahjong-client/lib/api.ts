@@ -182,3 +182,17 @@ export async function updateUser(userId: string, displayName: string) {
 
   return response.json();
 }
+
+export async function getUserByDisplayName(displayName: string) {
+  const response = await fetch(
+    `${API_URL}/api/users/by-display-name?displayName=${encodeURIComponent(
+      displayName
+    )}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not check display name");
+  }
+
+  return response.json();
+}

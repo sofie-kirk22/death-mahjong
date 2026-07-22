@@ -4,8 +4,8 @@ import { useState } from "react";
 import { createRoom, joinRoom } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { saveGameSession } from "@/lib/gameSession";
-import { createUser, updateUser } from "@/lib/api";
-import { getUser, saveUser } from "@/lib/userSession";
+import { createUser, getUserByDisplayName } from "@/lib/api";
+import { saveUser } from "@/lib/userSession";
 
 import AppNav from "@/components/AppNav";
 
@@ -203,29 +203,37 @@ export default function HomePage() {
 }
 
 async function getOrCreateUser(displayName: string) {
-  const existingUser = getUser();
+  const trimmedDisplayName = displayName.trim();
 
-  if (!existingUser) {
-    const newUser = await createUser(displayName);
-
-    saveUser({
-      id: newUser.id,
-      displayName: newUser.displayName,
-    });
-
-    return newUser;
+  if (!trimmedDisplayName) {
+    throw new Error("Display name is required.");
   }
 
-  if (existingUser.displayName !== displayName) {
-    const updatedUser = await updateUser(existingUser.id, displayName);
+  const lookupResult = await getUserByDisplayName(trimmedDisplayName);
 
+  if (lookupResult.exists && lookupResult.user) {
     saveUser({
-      id: updatedUser.id,
-      displayName: updatedUser.displayName,
+      id: lookupResult.user.id,
+      displayName: lookupResult.user.displayName,
     });
 
-    return updatedUser;
+    return lookupResult.user;
   }
 
-  return existingUser;
+  const shouldCreateUser = window.confirm(
+    `"${trimmedDisplayName}" does not currently exist. Create new user?`
+  );
+
+  if (!shouldCreateUser) {
+    throw new Error("User creation cancelled.");
+  }
+
+  const newUser = await createUser(trimmedDisplayName);
+
+  saveUser({
+    id: newUser.id,
+    displayName: newUser.displayName,
+  });
+
+  return newUser;
 }

@@ -131,7 +131,7 @@ export default function StatsPage() {
                                 />
 
                                 <LeaderboardCard
-                                    title="Best single game"
+                                    title="Best game"
                                     subtitle="Highest sip count in one game"
                                     rows={leaderboards.bestSingleGame}
                                     valueLabel="sips"
@@ -141,7 +141,7 @@ export default function StatsPage() {
 
                                 <div className="lg:col-span-2">
                                     <LeaderboardCard
-                                        title="Worst single game"
+                                        title="Worst game"
                                         subtitle="Lowest sip count in one game"
                                         rows={leaderboards.worstSingleGame}
                                         valueLabel="sips"

@@ -423,6 +423,169 @@ app.MapGet("/api/gamerooms/{roomId}", (
     return Results.Ok(gameRoom);
 });
 
+var stats = app.MapGroup("/api/stats");
+
+stats.MapGet("/completed-games", async (AppDbContext db, int limit = 50) =>
+{
+    limit = Math.Clamp(limit, 1, 100);
+
+    var games = await db.CompletedGames
+        .AsNoTracking()
+        .OrderByDescending(game => game.EndedAt)
+        .Take(limit)
+        .Select(game => new
+        {
+            game.Id,
+            game.StartedAt,
+            game.EndedAt,
+            game.DurationSeconds,
+            game.HardCoreMode,
+            game.FullDeckMode,
+            game.PlayerCount,
+            game.DrawnTileCount,
+            game.TotalSips,
+            game.WinnerPlayerId,
+            game.WinnerPlayerName,
+            game.EndReason,
+            Players = game.Players
+                .OrderBy(player => player.FinalRank)
+                .Select(player => new
+                {
+                    player.PlayerId,
+                    player.DisplayName,
+                    player.FinalRank,
+                    player.TotalSips,
+                    player.DragonCount,
+                    player.WindCount,
+                    player.LatestTileName,
+                    player.LatestSips
+                })
+        })
+        .ToListAsync();
+
+    return Results.Ok(games);
+});
+
+stats.MapGet("/recent-games", async (AppDbContext db, int limit = 10) =>
+{
+    limit = Math.Clamp(limit, 1, 50);
+
+    var games = await db.CompletedGames
+        .AsNoTracking()
+        .OrderByDescending(game => game.EndedAt)
+        .Take(limit)
+        .Select(game => new
+        {
+            game.Id,
+            game.EndedAt,
+            game.DurationSeconds,
+            game.PlayerCount,
+            game.DrawnTileCount,
+            game.TotalSips,
+            game.WinnerPlayerName,
+            game.HardCoreMode,
+            game.FullDeckMode,
+            game.EndReason
+        })
+        .ToListAsync();
+
+    return Results.Ok(games);
+});
+
+stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
+{
+    limit = Math.Clamp(limit, 1, 100);
+
+    var totalSips = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .GroupBy(player => player.DisplayName)
+        .Select(group => new
+        {
+            DisplayName = group.Key,
+            GamesPlayed = group.Count(),
+            TotalSips = group.Sum(player => player.TotalSips)
+        })
+        .OrderByDescending(player => player.TotalSips)
+        .ThenBy(player => player.DisplayName)
+        .Take(limit)
+        .ToListAsync();
+
+    var totalDragons = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .GroupBy(player => player.DisplayName)
+        .Select(group => new
+        {
+            DisplayName = group.Key,
+            GamesPlayed = group.Count(),
+            TotalDragons = group.Sum(player => player.DragonCount)
+        })
+        .OrderByDescending(player => player.TotalDragons)
+        .ThenBy(player => player.DisplayName)
+        .Take(limit)
+        .ToListAsync();
+
+    var totalWinds = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .GroupBy(player => player.DisplayName)
+        .Select(group => new
+        {
+            DisplayName = group.Key,
+            GamesPlayed = group.Count(),
+            TotalWinds = group.Sum(player => player.WindCount)
+        })
+        .OrderByDescending(player => player.TotalWinds)
+        .ThenBy(player => player.DisplayName)
+        .Take(limit)
+        .ToListAsync();
+
+    var bestSingleGame = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .OrderByDescending(player => player.TotalSips)
+        .ThenBy(player => player.DisplayName)
+        .Take(limit)
+        .Select(player => new
+        {
+            player.DisplayName,
+            player.CompletedGameId,
+            player.TotalSips,
+            player.DragonCount,
+            player.WindCount,
+            player.FinalRank,
+            player.CompletedGame.EndedAt,
+            player.CompletedGame.HardCoreMode,
+            player.CompletedGame.FullDeckMode
+        })
+        .ToListAsync();
+
+    var worstSingleGame = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .OrderBy(player => player.TotalSips)
+        .ThenBy(player => player.DisplayName)
+        .Take(limit)
+        .Select(player => new
+        {
+            player.DisplayName,
+            player.CompletedGameId,
+            player.TotalSips,
+            player.DragonCount,
+            player.WindCount,
+            player.FinalRank,
+            player.CompletedGame.EndedAt,
+            player.CompletedGame.HardCoreMode,
+            player.CompletedGame.FullDeckMode
+        })
+        .ToListAsync();
+
+    return Results.Ok(new
+    {
+        TotalSips = totalSips,
+        TotalDragons = totalDragons,
+        TotalWinds = totalWinds,
+        BestSingleGame = bestSingleGame,
+        WorstSingleGame = worstSingleGame
+    });
+});
+
 app.Run();
 
 static string PickColor(int index)

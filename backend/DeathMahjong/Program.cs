@@ -4,7 +4,9 @@ using DeathMahjong.Api.Services;
 using DeathMahjong.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using DeathMahjong.Api.Data;
+using DeathMahjong.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,9 +80,37 @@ app.MapGet("/health/db", async (AppDbContext db) =>
     });
 });
 
-app.MapPost("/api/gamerooms", (
+app.MapGet("/debug/db/gamerooms", async (AppDbContext db) =>
+{
+    var rooms = await db.GameRooms
+        .Include(room => room.Players)
+        .OrderByDescending(room => room.StartedAt)
+        .Take(10)
+        .Select(room => new
+        {
+            room.Id,
+            room.JoinCode,
+            room.HostPlayerId,
+            room.HardCoreMode,
+            room.FullDeckMode,
+            room.HasStarted,
+            room.HasEnded,
+            Players = room.Players.Select(player => new
+            {
+                player.Id,
+                player.DisplayName,
+                player.Color
+            })
+        })
+        .ToListAsync();
+
+    return Results.Ok(rooms);
+});
+
+app.MapPost("/api/gamerooms", async (
     CreateRoomRequest request,
-    GameRoomStore gameRoomStore
+    GameRoomStore gameRoomStore,
+    AppDbContext db
 ) =>
 {
 
@@ -88,7 +118,53 @@ app.MapPost("/api/gamerooms", (
     {
         return Results.BadRequest("Host player name is required.");
     }
-    var gameRoom = gameRoomStore.CreateGameRoom(request.HostPlayerName, request.HardCoreMode, request.FullDeckMode);
+    var gameRoom = gameRoomStore.CreateGameRoom(
+        request.HostPlayerName, 
+        request.HardCoreMode, 
+        request.FullDeckMode
+    );
+
+    var hostPlayer = gameRoom.Players.First();
+
+    var GameRoomEntity = new GameRoomEntity
+    {
+        Id = gameRoom.Id,
+        JoinCode = gameRoom.JoinCode,
+        HostPlayerId = gameRoom.HostPlayerId,
+
+        CurrentPlayerIndex = gameRoom.CurrentPlayerIndex,
+
+        HardCoreMode = gameRoom.HardCoreMode,
+        FullDeckMode = gameRoom.FullDeckMode,
+
+        HasStarted = gameRoom.HasStarted,
+        StartedAt = gameRoom.StartedAt,
+
+        HasEnded = gameRoom.HasEnded,
+        EndReason = gameRoom.EndReason?.ToString(),
+        EndedAt = gameRoom.EndedAt,
+        EndedByPlayerId = gameRoom.EndedByPlayerId,
+
+        MaxPlayers = gameRoom.MaxPlayers,
+        MinPlayers = gameRoom.MinPlayers,
+
+        Players =
+        [
+            new GamePlayerEntity
+            {
+                Id = hostPlayer.Id,
+                GameRoomId = gameRoom.Id,
+                UserId = null,
+                DisplayName = hostPlayer.DisplayName,
+                Color = hostPlayer.Color,
+                JoinedAt = DateTime.UtcNow
+            }
+        ]
+    };
+
+    db.GameRooms.Add(GameRoomEntity);
+    await db.SaveChangesAsync();
+
     return Results.Ok(gameRoom);
 });
 

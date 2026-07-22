@@ -165,24 +165,6 @@ export async function createUser(displayName: string) {
   return response.json();
 }
 
-export async function updateUser(userId: string, displayName: string) {
-  const response = await fetch(`${API_URL}/api/users/${userId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      displayName,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Could not update user");
-  }
-
-  return response.json();
-}
-
 export async function getUserByDisplayName(displayName: string) {
   const response = await fetch(
     `${API_URL}/api/users/by-display-name?displayName=${encodeURIComponent(

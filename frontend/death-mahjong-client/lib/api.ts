@@ -95,7 +95,43 @@ export async function abortGame(roomId: string, playerId: string) {
 
   if (!response.ok) {
     throw new Error(await response.text());
-  } 
+  }
+
+  return response.json();
+}
+
+export async function getLeaderboards(limit = 10) {
+  const response = await fetch(
+    `${API_URL}/api/stats/leaderboards?limit=${limit}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not load leaderboards");
+  }
+
+  return response.json();
+}
+
+export async function getRecentGames(limit = 10) {
+  const response = await fetch(
+    `${API_URL}/api/stats/recent-games?limit=${limit}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not load recent games");
+  }
+
+  return response.json();
+}
+
+export async function getCompletedGames(limit = 50) {
+  const response = await fetch(
+    `${API_URL}/api/stats/completed-games?limit=${limit}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not load completed games");
+  }
 
   return response.json();
 }

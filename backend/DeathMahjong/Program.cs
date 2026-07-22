@@ -80,36 +80,11 @@ app.MapGet("/health/db", async (AppDbContext db) =>
     });
 });
 
-app.MapGet("/debug/db/gamerooms", async (AppDbContext db) =>
+if (app.Environment.IsDevelopment())
 {
-    var rooms = await db.GameRooms
-        .Include(room => room.Players)
-        .OrderByDescending(room => room.StartedAt)
-        .Take(10)
-        .Select(room => new
-        {
-            room.Id,
-            room.JoinCode,
-            room.HostPlayerId,
-            room.HardCoreMode,
-            room.FullDeckMode,
-            room.HasStarted,
-            room.HasEnded,
-            Players = room.Players.Select(player => new
-            {
-                player.Id,
-                player.DisplayName,
-                player.Color
-            })
-        })
-        .ToListAsync();
-
-    return Results.Ok(rooms);
-});
-
-app.MapGet("/debug/db/completed-games", async (AppDbContext db) =>
-{
-    var games = await db.CompletedGames
+    app.MapGet("/debug/db/completed-games", async (AppDbContext db) =>
+    {
+        var games = await db.CompletedGames
         .Include(game => game.Players)
         .OrderByDescending(game => game.EndedAt)
         .Take(10)
@@ -140,8 +115,9 @@ app.MapGet("/debug/db/completed-games", async (AppDbContext db) =>
         })
         .ToListAsync();
 
-    return Results.Ok(games);
-});
+    return Results.Ok(games);    
+    });
+}
 
 app.MapPost("/api/gamerooms", async (
     CreateRoomRequest request,

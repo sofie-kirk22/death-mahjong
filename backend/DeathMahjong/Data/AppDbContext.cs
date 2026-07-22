@@ -14,6 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<GamePlayerEntity> GamePlayers => Set<GamePlayerEntity>();
     public DbSet<GameTileEntity> GameTiles => Set<GameTileEntity>();
     public DbSet<GameMoveEntity> GameMoves => Set<GameMoveEntity>();
+    public DbSet<CompletedGameEntity> CompletedGames => Set<CompletedGameEntity>();
+    public DbSet<CompletedGamePlayerEntity> CompletedGamePlayers => Set<CompletedGamePlayerEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,6 +86,33 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             entity.Property(move => move.TileType)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<CompletedGameEntity>(entity =>
+        {
+            entity.HasKey(game => game.Id);
+
+            entity.Property(game => game.StartedAt)
+                .IsRequired();
+
+            entity.Property(game => game.EndedAt)
+                .IsRequired();
+
+            entity.HasMany(game => game.Players)
+                .WithOne(player => player.CompletedGame)
+                .HasForeignKey(player => player.CompletedGameId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CompletedGamePlayerEntity>(entity =>
+        {
+            entity.HasKey(player => player.Id);
+
+            entity.Property(player => player.PlayerId)
+                .IsRequired();
+
+            entity.Property(player => player.DisplayName)
                 .IsRequired();
         });
     }

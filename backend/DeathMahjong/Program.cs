@@ -107,6 +107,42 @@ app.MapGet("/debug/db/gamerooms", async (AppDbContext db) =>
     return Results.Ok(rooms);
 });
 
+app.MapGet("/debug/db/completed-games", async (AppDbContext db) =>
+{
+    var games = await db.CompletedGames
+        .Include(game => game.Players)
+        .OrderByDescending(game => game.EndedAt)
+        .Take(10)
+        .Select(game => new
+        {
+            game.Id,
+            game.StartedAt,
+            game.EndedAt,
+            game.DurationSeconds,
+            game.HardCoreMode,
+            game.FullDeckMode,
+            game.PlayerCount,
+            game.DrawnTileCount,
+            game.TotalSips,
+            game.WinnerPlayerName,
+            game.EndReason,
+            Players = game.Players
+                .OrderBy(player => player.FinalRank)
+                .Select(player => new
+                {
+                    player.FinalRank,
+                    player.DisplayName,
+                    player.TotalSips,
+                    player.DragonCount,
+                    player.LatestTileName,
+                    player.LatestSips
+                })
+        })
+        .ToListAsync();
+
+    return Results.Ok(games);
+});
+
 app.MapPost("/api/gamerooms", async (
     CreateRoomRequest request,
     GameRoomStore gameRoomStore,
@@ -304,7 +340,8 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
     DrawTileRequest request,
     GameRoomStore gameRoomStore,
     GameEngine gameEngine,
-    IHubContext<GameHub> hubContext
+    IHubContext<GameHub> hubContext,
+    AppDbContext db
 ) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
@@ -338,10 +375,11 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 
         if (gameRoom.HasEnded)
         {
-            await hubContext.Clients.Group(roomId).SendAsync("GameEnded", new
-            {
-                gameRoom
-            });
+            await SaveCompletedGameAsync(gameRoom, db);
+
+            await hubContext.Clients
+                .Group(gameRoom.Id)
+                .SendAsync("GameEnded", new { gameRoom });
         }
 
         return Results.Ok(new
@@ -423,4 +461,64 @@ static string PickColor(int index)
     };
 
     return colors[index % colors.Length];
+}
+
+static async Task SaveCompletedGameAsync(GameRoom gameRoom, AppDbContext db)
+{
+    var alreadySaved = await db.CompletedGames
+        .AnyAsync(game => game.Id == gameRoom.Id);
+
+    if (alreadySaved)
+    {
+        return;
+    }
+
+    var endedAt = gameRoom.EndedAt ?? DateTime.UtcNow;
+    var durationSeconds = Math.Max(
+        0,
+        (int)(endedAt - gameRoom.StartedAt).TotalSeconds
+    );
+
+    var playerSummaries = gameRoom.PlayerDrinksSummaries
+        .OrderByDescending(summary => summary.TotalSips)
+        .ToList();
+
+    var winner = playerSummaries.FirstOrDefault();
+
+    var completedGame = new CompletedGameEntity
+    {
+        Id = gameRoom.Id,
+        StartedAt = gameRoom.StartedAt,
+        EndedAt = endedAt,
+        DurationSeconds = durationSeconds,
+
+        HardCoreMode = gameRoom.HardCoreMode,
+        FullDeckMode = gameRoom.FullDeckMode,
+
+        PlayerCount = gameRoom.Players.Count,
+        DrawnTileCount = gameRoom.DrawnTileCount,
+        TotalSips = playerSummaries.Sum(summary => summary.TotalSips),
+
+        WinnerPlayerId = winner?.PlayerId,
+        WinnerPlayerName = winner?.PlayerName,
+
+        EndReason = gameRoom.EndReason?.ToString(),
+
+        Players = playerSummaries.Select((summary, index) => new CompletedGamePlayerEntity
+        {
+            PlayerId = summary.PlayerId,
+            UserId = null,
+            DisplayName = summary.PlayerName,
+
+            FinalRank = index + 1,
+            TotalSips = summary.TotalSips,
+            DragonCount = summary.DragonCount,
+
+            LatestTileName = summary.LatestTileName,
+            LatestSips = summary.LatestSips
+        }).ToList()
+    };
+
+    db.CompletedGames.Add(completedGame);
+    await db.SaveChangesAsync();
 }

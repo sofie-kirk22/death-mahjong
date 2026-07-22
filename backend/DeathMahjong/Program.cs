@@ -109,6 +109,7 @@ if (app.Environment.IsDevelopment())
                     player.DisplayName,
                     player.TotalSips,
                     player.DragonCount,
+                    player.WindCount,
                     player.LatestTileName,
                     player.LatestSips
                 })
@@ -450,6 +451,7 @@ static async Task SaveCompletedGameAsync(GameRoom gameRoom, AppDbContext db)
     }
 
     var endedAt = gameRoom.EndedAt ?? DateTime.UtcNow;
+
     var durationSeconds = Math.Max(
         0,
         (int)(endedAt - gameRoom.StartedAt).TotalSeconds
@@ -480,18 +482,27 @@ static async Task SaveCompletedGameAsync(GameRoom gameRoom, AppDbContext db)
 
         EndReason = gameRoom.EndReason?.ToString(),
 
-        Players = playerSummaries.Select((summary, index) => new CompletedGamePlayerEntity
+        Players = playerSummaries.Select((summary, index) =>
         {
-            PlayerId = summary.PlayerId,
-            UserId = null,
-            DisplayName = summary.PlayerName,
+            var playerWindCount = gameRoom.Moves.Count(move =>
+                move.PlayerId == summary.PlayerId &&
+                move.TileType.ToString().Equals("Wind", StringComparison.OrdinalIgnoreCase)
+            );
 
-            FinalRank = index + 1,
-            TotalSips = summary.TotalSips,
-            DragonCount = summary.DragonCount,
+            return new CompletedGamePlayerEntity
+            {
+                PlayerId = summary.PlayerId,
+                UserId = null,
+                DisplayName = summary.PlayerName,
 
-            LatestTileName = summary.LatestTileName,
-            LatestSips = summary.LatestSips
+                FinalRank = index + 1,
+                TotalSips = summary.TotalSips,
+                DragonCount = summary.DragonCount,
+                WindCount = playerWindCount,
+
+                LatestTileName = summary.LatestTileName,
+                LatestSips = summary.LatestSips
+            };
         }).ToList()
     };
 

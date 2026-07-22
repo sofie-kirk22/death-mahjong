@@ -3,6 +3,8 @@ using DeathMahjong.Api.Models;
 using DeathMahjong.Api.Services;
 using DeathMahjong.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using DeathMahjong.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,18 @@ if (!string.IsNullOrWhiteSpace(port))
 {
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Missing database connection string.");
+}
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(connectionString);
+});
 
 var allowedOrigins =
     builder.Configuration
@@ -50,6 +64,17 @@ app.MapGet("/health", () =>
     {
         status = "ok",
         app = "Death Mahjong"
+    });
+});
+
+app.MapGet("/health/db", async (AppDbContext db) =>
+{
+    var canConnect = await db.Database.CanConnectAsync();
+
+    return Results.Ok(new
+    {
+        status = canConnect ? "ok" : "error",
+        database = canConnect ? "connected" : "not connected"
     });
 });
 

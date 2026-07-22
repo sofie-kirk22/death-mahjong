@@ -178,3 +178,21 @@ export async function getUserByDisplayName(displayName: string) {
 
   return response.json();
 }
+
+export async function getProfileStats(displayName: string) {
+  const response = await fetch(
+    `${API_URL}/api/stats/profile?displayName=${encodeURIComponent(
+      displayName
+    )}`
+  );
+
+  if (response.status === 404) {
+    throw new Error("No user found with that display name.");
+  }
+
+  if (!response.ok) {
+    throw new Error("Could not load profile statistics");
+  }
+
+  return response.json();
+}

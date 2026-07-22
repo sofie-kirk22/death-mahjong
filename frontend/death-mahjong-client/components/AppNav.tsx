@@ -34,9 +34,9 @@ export default function AppNav() {
                         Statistics
                     </NavLink>
 
-                    <span className="cursor-not-allowed rounded-full px-3 py-1.5 text-slate-400 dark:text-slate-500">
+                    <NavLink href="/profile" active={pathname === "/profile"}>
                         Profile
-                    </span>
+                    </NavLink>
                 </div>
             </div>
         </nav>

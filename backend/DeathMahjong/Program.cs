@@ -618,6 +618,103 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
     });
 });
 
+stats.MapGet("/profile", async (
+    string? displayName,
+    AppDbContext db) =>
+{
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        return Results.BadRequest("Display name is required.");
+    }
+
+    var normalizedDisplayName = displayName.Trim().ToUpper();
+
+    var user = await db.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(user =>
+            user.DisplayName.ToUpper() == normalizedDisplayName
+        );
+
+    if (user is null)
+    {
+        return Results.NotFound("No user found with that display name.");
+    }
+
+    var playerGames = await db.CompletedGamePlayers
+        .AsNoTracking()
+        .Where(player => player.UserId == user.Id)
+        .Select(player => new
+        {
+            player.PlayerId,
+            player.DisplayName,
+            player.FinalRank,
+            player.TotalSips,
+            player.DragonCount,
+            player.WindCount,
+            player.LatestTileName,
+            player.LatestSips,
+
+            player.CompletedGameId,
+            player.CompletedGame.StartedAt,
+            player.CompletedGame.EndedAt,
+            player.CompletedGame.DurationSeconds,
+            player.CompletedGame.PlayerCount,
+            player.CompletedGame.DrawnTileCount,
+            player.CompletedGame.WinnerPlayerId,
+            player.CompletedGame.WinnerPlayerName,
+            player.CompletedGame.HardCoreMode,
+            player.CompletedGame.FullDeckMode,
+            player.CompletedGame.EndReason
+        })
+        .OrderByDescending(game => game.EndedAt)
+        .ToListAsync();
+
+    var gamesPlayed = playerGames.Count;
+
+    var totalSips = playerGames.Sum(game => game.TotalSips);
+    var totalDragons = playerGames.Sum(game => game.DragonCount);
+    var totalWinds = playerGames.Sum(game => game.WindCount);
+
+    var wins = playerGames.Count(game =>
+        game.WinnerPlayerId == game.PlayerId
+    );
+
+    var bestSingleGame = playerGames
+        .OrderByDescending(game => game.TotalSips)
+        .FirstOrDefault();
+
+    var worstSingleGame = playerGames
+        .OrderBy(game => game.TotalSips)
+        .FirstOrDefault();
+
+    return Results.Ok(new
+    {
+        User = new
+        {
+            user.Id,
+            user.DisplayName,
+            user.CreatedAt
+        },
+
+        Summary = new
+        {
+            GamesPlayed = gamesPlayed,
+            Wins = wins,
+            TotalSips = totalSips,
+            AverageSips = gamesPlayed == 0 ? 0 : Math.Round((double)totalSips / gamesPlayed, 2),
+            TotalDragons = totalDragons,
+            TotalWinds = totalWinds
+        },
+
+        BestSingleGame = bestSingleGame,
+        WorstSingleGame = worstSingleGame,
+
+        RecentGames = playerGames
+            .Take(10)
+            .ToList()
+    });
+});
+
 var users = app.MapGroup("/api/users");
 
 users.MapGet("/by-display-name", async (

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createRoom, joinRoom } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { saveGameSession } from "@/lib/gameSession";
+import { createUser, updateUser } from "@/lib/api";
+import { getUser, saveUser } from "@/lib/userSession";
 
 import AppNav from "@/components/AppNav";
 
@@ -21,7 +23,14 @@ export default function HomePage() {
     try {
       setError("");
 
-      const room = await createRoom(hostName, hardcoreMode, fullDeckMode);
+      const user = await getOrCreateUser(hostName.trim());
+
+      const room = await createRoom(
+        hostName.trim(),
+        hardcoreMode,
+        fullDeckMode,
+        user.id
+      );
 
       const hostPlayer = room.players[0];
 
@@ -37,7 +46,13 @@ export default function HomePage() {
     try {
       setError("");
 
-      const result = await joinRoom(joinCode, joinName);
+      const user = await getOrCreateUser(joinName.trim());
+
+      const result = await joinRoom(
+        joinCode.trim(),
+        joinName.trim(),
+        user.id
+      );
 
       saveGameSession(
         result.gameRoom.id,
@@ -185,4 +200,32 @@ export default function HomePage() {
       </main>
     </>
   );
+}
+
+async function getOrCreateUser(displayName: string) {
+  const existingUser = getUser();
+
+  if (!existingUser) {
+    const newUser = await createUser(displayName);
+
+    saveUser({
+      id: newUser.id,
+      displayName: newUser.displayName,
+    });
+
+    return newUser;
+  }
+
+  if (existingUser.displayName !== displayName) {
+    const updatedUser = await updateUser(existingUser.id, displayName);
+
+    saveUser({
+      id: updatedUser.id,
+      displayName: updatedUser.displayName,
+    });
+
+    return updatedUser;
+  }
+
+  return existingUser;
 }

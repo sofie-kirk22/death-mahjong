@@ -8,11 +8,17 @@ public class GameRoomStore
     private readonly Dictionary<string, GameRoom> _roomsById = new();
     private readonly Dictionary<string, string> _roomIdsByCode = new();
 
-    public GameRoom CreateGameRoom(string hostPlayerName, bool hardCoreMode, bool fullDeckMode)
+    public GameRoom CreateGameRoom(
+        string hostPlayerName,
+        bool hardCoreMode,
+        bool fullDeckMode,
+        string? userId = null
+    )
     {
         Console.WriteLine($"Creating game room with host player: {hostPlayerName}, hardCoreMode: {hardCoreMode}, fullDeckMode: {fullDeckMode}");
         var hostPlayer = new Player
         {
+            UserId = userId,
             DisplayName = hostPlayerName,
             Color = "#FF0000" // Host player gets red color
         };

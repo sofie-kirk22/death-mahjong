@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<GameMoveEntity> GameMoves => Set<GameMoveEntity>();
     public DbSet<CompletedGameEntity> CompletedGames => Set<CompletedGameEntity>();
     public DbSet<CompletedGamePlayerEntity> CompletedGamePlayers => Set<CompletedGamePlayerEntity>();
+    public DbSet<UserEntity> Users => Set<UserEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +114,17 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             entity.Property(player => player.DisplayName)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<UserEntity>(entity =>
+        {
+            entity.HasKey(user => user.Id);
+
+            entity.Property(user => user.DisplayName)
+                .IsRequired();
+
+            entity.Property(user => user.CreatedAt)
                 .IsRequired();
         });
     }

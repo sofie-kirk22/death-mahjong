@@ -116,7 +116,7 @@ if (app.Environment.IsDevelopment())
         })
         .ToListAsync();
 
-    return Results.Ok(games);    
+        return Results.Ok(games);
     });
 }
 
@@ -132,9 +132,10 @@ app.MapPost("/api/gamerooms", async (
         return Results.BadRequest("Host player name is required.");
     }
     var gameRoom = gameRoomStore.CreateGameRoom(
-        request.HostPlayerName, 
-        request.HardCoreMode, 
-        request.FullDeckMode
+        request.HostPlayerName,
+        request.HardCoreMode,
+        request.FullDeckMode,
+        request.UserId
     );
 
     var hostPlayer = gameRoom.Players.First();
@@ -167,7 +168,7 @@ app.MapPost("/api/gamerooms", async (
             {
                 Id = hostPlayer.Id,
                 GameRoomId = gameRoom.Id,
-                UserId = null,
+                UserId = hostPlayer.UserId,
                 DisplayName = hostPlayer.DisplayName,
                 Color = hostPlayer.Color,
                 JoinedAt = DateTime.UtcNow
@@ -218,12 +219,14 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
     }
 
     var nameAlreadyTaken = gameRoom.Players.Any(p => p.DisplayName.Trim().Equals(requestedName, StringComparison.OrdinalIgnoreCase));
-    if (nameAlreadyTaken)    {
+    if (nameAlreadyTaken)
+    {
         return Results.BadRequest("A player with that name has already joined this room. Please choose a different name.");
     }
 
     var player = new Player
     {
+        UserId = request.UserId,
         DisplayName = requestedName,
         Color = PickColor(gameRoom.Players.Count)
     };
@@ -240,7 +243,7 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
     {
         Id = player.Id,
         GameRoomId = gameRoom.Id,
-        UserId = null,
+        UserId = player.UserId,
         DisplayName = player.DisplayName,
         Color = player.Color,
         JoinedAt = DateTime.UtcNow
@@ -498,10 +501,19 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
 
     var totalSips = await db.CompletedGamePlayers
         .AsNoTracking()
-        .GroupBy(player => player.DisplayName)
+        .GroupBy(player => player.UserId ?? player.DisplayName)
         .Select(group => new
         {
-            DisplayName = group.Key,
+            UserId = group
+                .Where(player => player.UserId != null)
+                .Select(player => player.UserId)
+                .FirstOrDefault(),
+
+            DisplayName = group
+                .OrderByDescending(player => player.CompletedGame.EndedAt)
+                .Select(player => player.DisplayName)
+                .First(),
+
             GamesPlayed = group.Count(),
             TotalSips = group.Sum(player => player.TotalSips)
         })
@@ -512,10 +524,19 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
 
     var totalDragons = await db.CompletedGamePlayers
         .AsNoTracking()
-        .GroupBy(player => player.DisplayName)
+        .GroupBy(player => player.UserId ?? player.DisplayName)
         .Select(group => new
         {
-            DisplayName = group.Key,
+            UserId = group
+                .Where(player => player.UserId != null)
+                .Select(player => player.UserId)
+                .FirstOrDefault(),
+
+            DisplayName = group
+                .OrderByDescending(player => player.CompletedGame.EndedAt)
+                .Select(player => player.DisplayName)
+                .First(),
+
             GamesPlayed = group.Count(),
             TotalDragons = group.Sum(player => player.DragonCount)
         })
@@ -526,10 +547,19 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
 
     var totalWinds = await db.CompletedGamePlayers
         .AsNoTracking()
-        .GroupBy(player => player.DisplayName)
+        .GroupBy(player => player.UserId ?? player.DisplayName)
         .Select(group => new
         {
-            DisplayName = group.Key,
+            UserId = group
+                .Where(player => player.UserId != null)
+                .Select(player => player.UserId)
+                .FirstOrDefault(),
+
+            DisplayName = group
+                .OrderByDescending(player => player.CompletedGame.EndedAt)
+                .Select(player => player.DisplayName)
+                .First(),
+
             GamesPlayed = group.Count(),
             TotalWinds = group.Sum(player => player.WindCount)
         })
@@ -545,6 +575,7 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
         .Take(limit)
         .Select(player => new
         {
+            player.UserId,
             player.DisplayName,
             player.CompletedGameId,
             player.TotalSips,
@@ -564,6 +595,7 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
         .Take(limit)
         .Select(player => new
         {
+            player.UserId,
             player.DisplayName,
             player.CompletedGameId,
             player.TotalSips,
@@ -586,18 +618,98 @@ stats.MapGet("/leaderboards", async (AppDbContext db, int limit = 10) =>
     });
 });
 
+var users = app.MapGroup("/api/users");
+
+users.MapPost("/", async (
+    CreateUserRequest request,
+    AppDbContext db) =>
+{
+    var displayName = request.DisplayName?.Trim();
+
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        return Results.BadRequest("Display name is required.");
+    }
+
+    var user = new UserEntity
+    {
+        DisplayName = displayName
+    };
+
+    db.Users.Add(user);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        user.Id,
+        user.DisplayName,
+        user.CreatedAt
+    });
+});
+
+users.MapGet("/{userId}", async (
+    string userId,
+    AppDbContext db) =>
+{
+    var user = await db.Users
+        .AsNoTracking()
+        .Where(user => user.Id == userId)
+        .Select(user => new
+        {
+            user.Id,
+            user.DisplayName,
+            user.CreatedAt
+        })
+        .FirstOrDefaultAsync();
+
+    return user is null
+        ? Results.NotFound("User not found.")
+        : Results.Ok(user);
+});
+
+users.MapPut("/{userId}", async (
+    string userId,
+    UpdateUserRequest request,
+    AppDbContext db) =>
+{
+    var displayName = request.DisplayName?.Trim();
+
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        return Results.BadRequest("Display name is required.");
+    }
+
+    var user = await db.Users.FirstOrDefaultAsync(user => user.Id == userId);
+
+    if (user is null)
+    {
+        return Results.NotFound("User not found.");
+    }
+
+    user.DisplayName = displayName;
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        user.Id,
+        user.DisplayName,
+        user.CreatedAt
+    });
+});
+
 app.Run();
 
 static string PickColor(int index)
 {
-    var colors = new[] 
-    { 
-        "#FF0000", 
-        "#00FF00", 
-        "#0000FF", 
-        "#FFFF00", 
-        "#FF00FF", 
-        "#00FFFF" 
+    var colors = new[]
+    {
+        "#FF0000",
+        "#00FF00",
+        "#0000FF",
+        "#FFFF00",
+        "#FF00FF",
+        "#00FFFF"
     };
 
     return colors[index % colors.Length];
@@ -647,6 +759,10 @@ static async Task SaveCompletedGameAsync(GameRoom gameRoom, AppDbContext db)
 
         Players = playerSummaries.Select((summary, index) =>
         {
+            var livePlayer = gameRoom.Players.FirstOrDefault(player =>
+                player.Id == summary.PlayerId
+            );
+
             var playerWindCount = gameRoom.Moves.Count(move =>
                 move.PlayerId == summary.PlayerId &&
                 move.TileType.ToString().Equals("Wind", StringComparison.OrdinalIgnoreCase)
@@ -655,7 +771,7 @@ static async Task SaveCompletedGameAsync(GameRoom gameRoom, AppDbContext db)
             return new CompletedGamePlayerEntity
             {
                 PlayerId = summary.PlayerId,
-                UserId = null,
+                UserId = livePlayer?.UserId,
                 DisplayName = summary.PlayerName,
 
                 FinalRank = index + 1,

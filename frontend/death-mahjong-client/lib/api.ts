@@ -4,39 +4,50 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined");
 }
 
-export async function createRoom(hostName: string, hardcoreMode: boolean, fullDeckMode: boolean) {
+export async function createRoom(
+  hostName: string,
+  hardcoreMode: boolean,
+  fullDeckMode: boolean,
+  userId?: string | null
+) {
   const response = await fetch(`${API_URL}/api/gamerooms`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      hostplayername: hostName,
+      hostPlayerName: hostName,
+      userId,
       hardCoreMode: hardcoreMode,
-      fullDeckMode: fullDeckMode
+      fullDeckMode,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    throw new Error("Could not create room");
   }
 
   return response.json();
 }
 
-export async function joinRoom(code: string, displayName: string) {
-  const response = await fetch(`${API_URL}/api/gamerooms/${code}/join`, {
+export async function joinRoom(
+  joinCode: string,
+  playerName: string,
+  userId?: string | null
+) {
+  const response = await fetch(`${API_URL}/api/gamerooms/${joinCode}/join`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      playerName: displayName
+      playerName,
+      userId,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    throw new Error("Could not join room");
   }
 
   return response.json();
@@ -131,6 +142,42 @@ export async function getCompletedGames(limit = 50) {
 
   if (!response.ok) {
     throw new Error("Could not load completed games");
+  }
+
+  return response.json();
+}
+
+export async function createUser(displayName: string) {
+  const response = await fetch(`${API_URL}/api/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      displayName,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not create user");
+  }
+
+  return response.json();
+}
+
+export async function updateUser(userId: string, displayName: string) {
+  const response = await fetch(`${API_URL}/api/users/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      displayName,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not update user");
   }
 
   return response.json();

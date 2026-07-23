@@ -17,7 +17,7 @@ const sipSymbols = [
 
 type DrinkCountDisplayProps = {
   totalSips: number;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   prefix?: string;
 };
 
@@ -33,6 +33,7 @@ export default function DrinkCountDisplay({
   const remainingSipSymbol = sipSymbols[remainingSips];
 
   const beerSize = {
+    xs: "text-lg",
     sm: "text-2xl",
     md: "text-3xl",
     lg: "text-5xl",
@@ -40,6 +41,7 @@ export default function DrinkCountDisplay({
   }[size];
 
   const sipSize = {
+    xs: "text-xs",
     sm: "text-sm",
     md: "text-lg",
     lg: "text-2xl",

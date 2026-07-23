@@ -150,7 +150,7 @@ export default function GameEndPage() {
                                                         <span>{summary.latestTileName} —</span>
                                                         <DrinkCountDisplay
                                                             totalSips={summary.latestSips ?? 0}
-                                                            size="sm"
+                                                            size="xs"
                                                         />
                                                     </span>
                                                 ) : (

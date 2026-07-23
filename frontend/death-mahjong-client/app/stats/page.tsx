@@ -108,10 +108,10 @@ export default function StatsPage() {
                         <>
                             <section className="grid gap-4 lg:grid-cols-2">
                                 <LeaderboardCard
-                                    title="Total beer"
+                                    title="Total beers"
                                     subtitle="Most beer across all games"
                                     rows={leaderboards.totalSips}
-                                    valueLabel="beer/sips"
+                                    valueLabel="beers"
                                     getValue={(row) => (
                                         <DrinkCountDisplay totalSips={row.totalSips ?? 0} size="sm" />
                                     )}

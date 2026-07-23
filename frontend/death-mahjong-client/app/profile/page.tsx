@@ -177,6 +177,7 @@ export default function ProfilePage() {
                                     <ProfileStatCard
                                         label="Average game"
                                         value={profile.summary.averageSips}
+                                        suffix="sips"
                                     />
                                     <ProfileStatCard
                                         label="Dragons"

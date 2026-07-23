@@ -1,5 +1,5 @@
 import { getTileImageSrc } from "@/lib/tileImages";
-import { formatBase14, formatDrinkCount } from "@/lib/formatDrinkCount";
+import { formatDrinkCount } from "@/lib/formatDrinkCount";
 
 export default function PlayerPanel({
     player,
@@ -37,7 +37,7 @@ export default function PlayerPanel({
                         : "-"}
                 </p>
                 <p>Dragons: {summary?.dragonCount ?? 0}</p>
-                <p>Total: {formatBase14(summary?.totalSips ?? 0)} beers</p>
+                <p>Total: {formatDrinkCount(summary?.totalSips ?? 0)} beers</p>
             </div>
 
             <details className="border-t border-slate-200 pt-2 dark:border-slate-800">

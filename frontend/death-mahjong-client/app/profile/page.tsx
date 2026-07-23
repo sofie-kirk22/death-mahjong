@@ -177,7 +177,7 @@ export default function ProfilePage() {
                                     />
                                     <ProfileStatCard
                                         label="Average game"
-                                        value={formatBase14(profile.summary.averageSips)}
+                                        value={formatDrinkCount(profile.summary.averageSips)}
                                         suffix="sips"
                                     />
                                     <ProfileStatCard
@@ -295,7 +295,7 @@ function SingleGameCard({
             <div className="mt-4 flex items-end justify-between gap-3">
                 <div>
                     <p className="font-mono text-4xl font-bold">
-                        {formatBase14(game.totalSips)}
+                        {formatDrinkCount(game.totalSips)}
                     </p>
                 </div>
 
@@ -348,7 +348,7 @@ function ProfileGameRow({ game }: { game: ProfileGame }) {
 
                 <div className="text-right">
                     <p className="font-mono text-2xl font-bold">
-                        {formatBase14(game.totalSips)}
+                        {formatDrinkCount(game.totalSips)}
                     </p>
                 </div>
             </div>

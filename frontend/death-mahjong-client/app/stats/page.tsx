@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getLeaderboards, getRecentGames } from "@/lib/api";
+import { formatDrinkCount } from "@/lib/formatDrinkCount";
 import AppNav from "@/components/AppNav";
 
 type LeaderboardRow = {
@@ -135,7 +136,7 @@ export default function StatsPage() {
                                     subtitle="Highest sip count in one game"
                                     rows={leaderboards.bestSingleGame}
                                     valueLabel="sips"
-                                    getValue={(row) => row.totalSips ?? 0}
+                                    getValue={(row) => formatDrinkCount(row.totalSips ?? 0)}
                                     showSingleGameDetails
                                 />
 
@@ -145,7 +146,7 @@ export default function StatsPage() {
                                         subtitle="Lowest sip count in one game"
                                         rows={leaderboards.worstSingleGame}
                                         valueLabel="sips"
-                                        getValue={(row) => row.totalSips ?? 0}
+                                        getValue={(row) => formatDrinkCount(row.totalSips ?? 0)}
                                         showSingleGameDetails
                                     />
                                 </div>
@@ -200,7 +201,7 @@ function LeaderboardCard({
     subtitle: string;
     rows: LeaderboardRow[];
     valueLabel: string;
-    getValue: (row: LeaderboardRow) => number;
+    getValue: (row: LeaderboardRow) => string | number;
     showSingleGameDetails?: boolean;
 }) {
     return (
@@ -253,7 +254,7 @@ function LeaderboardCard({
                             </div>
 
                             <div className="text-right">
-                                <p className="text-2xl font-bold">{getValue(row)}</p>
+                                <p className="font-mono text-2xl font-bold">{getValue(row)}</p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
                                     {valueLabel}
                                 </p>
@@ -282,7 +283,7 @@ function RecentGameRow({ game }: { game: RecentGame }) {
                 </div>
 
                 <div className="text-right">
-                    <p className="text-2xl font-bold">{game.totalSips}</p>
+                    <p className="font-mono text-2xl font-bold">{formatDrinkCount(game.totalSips)}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                         total sips
                     </p>

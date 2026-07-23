@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { PyramidBoard } from "./PyramidBoard";
 import { getTileImageSrc } from "@/lib/tileImages";
+import { formatDrinkCount } from "@/lib/formatDrinkCount";
 
 export default function MobileGameView({
     gameRoom,
@@ -124,7 +125,7 @@ export default function MobileGameView({
                 <div className="grid grid-cols-3 gap-2 text-center">
                     <MobileStatCard
                         label="Total"
-                        value={mySummary?.totalSips ?? 0}
+                        value={formatDrinkCount(mySummary?.totalSips ?? 0)}
                         suffix="sips"
                     />
                     <MobileStatCard

@@ -4,7 +4,8 @@ import { FormEvent, useEffect, useState } from "react";
 import AppNav from "@/components/AppNav";
 import { getProfileStats } from "@/lib/api";
 import { getUser, saveUser } from "@/lib/userSession";
-import { formatBase14, formatDrinkCount } from "@/lib/formatDrinkCount";
+import { formatDrinkCount, getDrinkCountParts } from "@/lib/formatDrinkCount";
+import DrinkCountDisplay from "@/components/DrinkCountDisplay";
 
 type ProfileGame = {
     playerId: string;
@@ -177,8 +178,13 @@ export default function ProfilePage() {
                                     />
                                     <ProfileStatCard
                                         label="Average game"
-                                        value={formatDrinkCount(profile.summary.averageSips)}
-                                        suffix="sips"
+                                        value={
+                                            <DrinkCountDisplay
+                                                totalSips={profile.summary.averageSips}
+                                                size="md"
+                                                prefix="≈"
+                                            />
+                                        }
                                     />
                                     <ProfileStatCard
                                         label="Dragons"
@@ -241,7 +247,7 @@ function ProfileStatCard({
     suffix,
 }: {
     label: string;
-    value: string | number;
+    value: React.ReactNode;
     suffix?: string;
 }) {
     return (
@@ -294,9 +300,7 @@ function SingleGameCard({
 
             <div className="mt-4 flex items-end justify-between gap-3">
                 <div>
-                    <p className="font-mono text-4xl font-bold">
-                        {formatDrinkCount(game.totalSips)}
-                    </p>
+                    <DrinkCountDisplay totalSips={game.totalSips} size="lg" />
                 </div>
 
                 <div className="text-right text-sm text-slate-500 dark:text-slate-400">
@@ -347,9 +351,7 @@ function ProfileGameRow({ game }: { game: ProfileGame }) {
                 </div>
 
                 <div className="text-right">
-                    <p className="font-mono text-2xl font-bold">
-                        {formatDrinkCount(game.totalSips)}
-                    </p>
+                    <DrinkCountDisplay totalSips={game.totalSips} size="sm" />
                 </div>
             </div>
 

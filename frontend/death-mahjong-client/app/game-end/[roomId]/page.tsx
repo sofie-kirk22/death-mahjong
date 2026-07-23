@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getRoom } from "@/lib/api";
 import AppNav from "@/components/AppNav";
+import DrinkCountDisplay from "@/components/DrinkCountDisplay";
 import { formatDrinkCount } from "@/lib/formatDrinkCount";
 
 export default function GameEndPage() {
@@ -152,9 +153,9 @@ export default function GameEndPage() {
                                             </p>
                                         </div>
 
-                                        <p className="font-mono text-2xl font-bold">
-                                            {formatDrinkCount(summary.totalSips)}
-                                        </p>
+                                        <div className="text-right">
+                                            <DrinkCountDisplay totalSips={summary.totalSips} size="md" />
+                                        </div>
                                     </li>
                                 ))}
                         </ul>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { getLeaderboards, getRecentGames } from "@/lib/api";
-import { formatDrinkCount } from "@/lib/formatDrinkCount";
 import AppNav from "@/components/AppNav";
+import DrinkCountDisplay from "@/components/DrinkCountDisplay";
 
 type LeaderboardRow = {
     displayName: string;
@@ -108,11 +108,13 @@ export default function StatsPage() {
                         <>
                             <section className="grid gap-4 lg:grid-cols-2">
                                 <LeaderboardCard
-                                    title="Total sips"
-                                    subtitle="Most sips across all games"
+                                    title="Total beer"
+                                    subtitle="Most beer across all games"
                                     rows={leaderboards.totalSips}
-                                    valueLabel="sips"
-                                    getValue={(row) => row.totalSips ?? 0}
+                                    valueLabel="beer/sips"
+                                    getValue={(row) => (
+                                        <DrinkCountDisplay totalSips={row.totalSips ?? 0} size="sm" />
+                                    )}
                                 />
 
                                 <LeaderboardCard
@@ -133,20 +135,24 @@ export default function StatsPage() {
 
                                 <LeaderboardCard
                                     title="Best game"
-                                    subtitle="Highest sip count in one game"
+                                    subtitle="Highest beer count in one game"
                                     rows={leaderboards.bestSingleGame}
-                                    valueLabel="sips"
-                                    getValue={(row) => formatDrinkCount(row.totalSips ?? 0)}
+                                    valueLabel="beer/sips"
+                                    getValue={(row) => (
+                                        <DrinkCountDisplay totalSips={row.totalSips ?? 0} size="sm" />
+                                    )}
                                     showSingleGameDetails
                                 />
 
                                 <div className="lg:col-span-2">
                                     <LeaderboardCard
                                         title="Worst game"
-                                        subtitle="Lowest sip count in one game"
+                                        subtitle="Lowest beer count in one game"
                                         rows={leaderboards.worstSingleGame}
-                                        valueLabel="sips"
-                                        getValue={(row) => formatDrinkCount(row.totalSips ?? 0)}
+                                        valueLabel="beer/sips"
+                                        getValue={(row) => (
+                                            <DrinkCountDisplay totalSips={row.totalSips ?? 0} size="sm" />
+                                        )}
                                         showSingleGameDetails
                                     />
                                 </div>
@@ -201,7 +207,7 @@ function LeaderboardCard({
     subtitle: string;
     rows: LeaderboardRow[];
     valueLabel: string;
-    getValue: (row: LeaderboardRow) => string | number;
+    getValue: (row: LeaderboardRow) => ReactNode;
     showSingleGameDetails?: boolean;
 }) {
     return (
@@ -254,7 +260,10 @@ function LeaderboardCard({
                             </div>
 
                             <div className="text-right">
-                                <p className="font-mono text-2xl font-bold">{getValue(row)}</p>
+                                <div className="flex justify-end text-2xl font-bold">
+                                    {getValue(row)}
+                                </div>
+
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
                                     {valueLabel}
                                 </p>
@@ -283,9 +292,12 @@ function RecentGameRow({ game }: { game: RecentGame }) {
                 </div>
 
                 <div className="text-right">
-                    <p className="font-mono text-2xl font-bold">{formatDrinkCount(game.totalSips)}</p>
+                    <div className="flex justify-end">
+                        <DrinkCountDisplay totalSips={game.totalSips} size="sm" />
+                    </div>
+
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                        total sips
+                        total beer
                     </p>
                 </div>
             </div>

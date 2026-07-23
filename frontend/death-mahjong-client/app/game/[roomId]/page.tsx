@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { abortGame, drawTile, getRoom } from "@/lib/api";
@@ -25,6 +25,10 @@ export default function GamePage() {
   const [latestMove, setLatestMove] = useState<any>(null);
   const [error, setError] = useState("");
   const [showDebug, setShowDebug] = useState(false);
+  const [drawnTilePreview, setDrawnTilePreview] = useState<any>(null);
+  const drawnTilePreviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   useEffect(() => {
     async function loadRoom() {
@@ -120,6 +124,14 @@ export default function GamePage() {
   }, [roomId, router]);
 
   useEffect(() => {
+    return () => {
+      if (drawnTilePreviewTimeoutRef.current) {
+        clearTimeout(drawnTilePreviewTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.code !== "Space") return;
 
@@ -142,6 +154,20 @@ export default function GamePage() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [gameRoom, roomId]);
+
+  function showDrawnTilePreview(move: any) {
+    if (!move?.tileName) return;
+
+    if (drawnTilePreviewTimeoutRef.current) {
+      clearTimeout(drawnTilePreviewTimeoutRef.current);
+    }
+
+    setDrawnTilePreview(move);
+
+    drawnTilePreviewTimeoutRef.current = setTimeout(() => {
+      setDrawnTilePreview(null);
+    }, 500);
+  }
 
   async function handleDrawTile(tileId: string) {
     try {
@@ -169,6 +195,7 @@ export default function GamePage() {
 
       setRoom(updatedRoom);
       setLatestMove(move);
+      showDrawnTilePreview(move);
 
       if (updatedRoom.hasEnded) {
         const isAbortEnd =
@@ -378,6 +405,22 @@ export default function GamePage() {
           currentPlayerId={currentPlayerId}
         />
       </div>
+      
+      {drawnTilePreview?.tileName && (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+          <div className="animate-[tile-pop_500ms_ease-out_forwards] rounded-3xl bg-white/90 p-6 shadow-2xl dark:bg-slate-900/90">
+            <img
+              src={getTileImageSrc(drawnTilePreview.tileName)}
+              alt={drawnTilePreview.tileName}
+              className="h-48 w-auto"
+            />
+
+            <p className="mt-3 text-center text-lg font-bold text-slate-950 dark:text-slate-100">
+              {drawnTilePreview.tileName}
+            </p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

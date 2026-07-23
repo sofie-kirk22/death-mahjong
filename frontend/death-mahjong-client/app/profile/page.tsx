@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import AppNav from "@/components/AppNav";
 import { getProfileStats } from "@/lib/api";
 import { getUser, saveUser } from "@/lib/userSession";
-import { formatDrinkCount } from "@/lib/formatDrinkCount";
+import { formatBase14, formatDrinkCount } from "@/lib/formatDrinkCount";
 
 type ProfileGame = {
     playerId: string;
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                                     />
                                     <ProfileStatCard
                                         label="Average game"
-                                        value={profile.summary.averageSips}
+                                        value={formatBase14(profile.summary.averageSips)}
                                         suffix="sips"
                                     />
                                     <ProfileStatCard
@@ -295,7 +295,7 @@ function SingleGameCard({
             <div className="mt-4 flex items-end justify-between gap-3">
                 <div>
                     <p className="font-mono text-4xl font-bold">
-                        {formatDrinkCount(game.totalSips)}
+                        {formatBase14(game.totalSips)}
                     </p>
                 </div>
 
@@ -348,7 +348,7 @@ function ProfileGameRow({ game }: { game: ProfileGame }) {
 
                 <div className="text-right">
                     <p className="font-mono text-2xl font-bold">
-                        {formatDrinkCount(game.totalSips)}
+                        {formatBase14(game.totalSips)}
                     </p>
                 </div>
             </div>

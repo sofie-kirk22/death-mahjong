@@ -23,3 +23,23 @@ export function formatDrinkCount(totalSips: number) {
 
   return `${beers}${sipSymbols[remainingSips]}`;
 }
+
+const base14Digits = "0123456789ABCD";
+
+export function formatBase14(totalSips: number) {
+  const safeTotalSips = Math.max(0, Math.round(Number(totalSips) || 0));
+
+  if (safeTotalSips === 0) {
+    return "0₁₄";
+  }
+
+  let value = safeTotalSips;
+  let result = "";
+
+  while (value > 0) {
+    result = base14Digits[value % 14] + result;
+    value = Math.floor(value / 14);
+  }
+
+  return `${result}₁₄`;
+}

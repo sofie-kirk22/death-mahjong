@@ -327,87 +327,89 @@ export default function GamePage() {
       players.length;
 
   return (
-    <main
-      className="min-h-screen bg-cover bg-center bg-no-repeat p-4 text-slate-950 dark:text-slate-100"
-      style={{
-        backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
-      }}
-    >
-      <section className="lg:hidden">
-        <MobileGameView
-          gameRoom={gameRoom}
-          me={me}
-          mySummary={mySummary}
-          myMoves={myMoves}
-          currentPlayer={currentPlayer}
-          playersBeforeMyTurn={playersBeforeMyTurn}
-          error={error}
-          isHost={isHost}
-          onDrawTile={handleDrawTile}
-          onRandomDrawTile={handleRandomDrawTile}
-          onAbortGame={handleAbortGame}
-        />
-      </section>
-
-      <div className="hidden min-h-[calc(100vh-2rem)] gap-4 lg:grid lg:grid-cols-[18rem_1fr_18rem]">
-        <PlayerColumn
-          slots={leftPlayerSlots}
-          gameRoom={gameRoom}
-          currentPlayerId={currentPlayerId}
-        />
-
-        <section className="flex min-h-full flex-col gap-4">
-          <GameHeader
-            me={me}
-            currentPlayer={currentPlayer}
+    <>
+      <main
+        className="min-h-screen bg-cover bg-center bg-no-repeat p-4 text-slate-950 dark:text-slate-100"
+        style={{
+          backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
+        }}
+      >
+        <section className="lg:hidden">
+          <MobileGameView
             gameRoom={gameRoom}
+            me={me}
+            mySummary={mySummary}
+            myMoves={myMoves}
+            currentPlayer={currentPlayer}
+            playersBeforeMyTurn={playersBeforeMyTurn}
             error={error}
+            isHost={isHost}
+            onDrawTile={handleDrawTile}
+            onRandomDrawTile={handleRandomDrawTile}
+            onAbortGame={handleAbortGame}
           />
-
-          <div className="flex flex-1 items-center justify-center rounded-3xl border border-emerald-700 bg-emerald-700 p-6 shadow-inner dark:border-emerald-950 dark:bg-emerald-950">
-            <PyramidBoard
-              tiles={gameRoom.tiles}
-              onDrawTile={handleDrawTile}
-              disabled={gameRoom.hasEnded}
-            />
-          </div>
-
-          <RemainingTilesBar summary={gameRoom.remainingTileSummary} />
-
-          {gameRoom.hasEnded && (
-            <section className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-100">
-              <h2 className="text-xl font-semibold">Game ended</h2>
-              <p>Reason: {gameRoom.endReason}</p>
-            </section>
-          )}
-
-          {isHost && !gameRoom.hasEnded && (
-            <button
-              className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
-              onClick={handleAbortGame}
-            >
-              Abort game
-            </button>
-          )}
-
-          {showDebug && (
-            <DebugPanel
-              tiles={gameRoom.tiles}
-              hasEnded={gameRoom.hasEnded}
-              onDrawTile={handleDrawTile}
-            />
-          )}
         </section>
 
-        <PlayerColumn
-          slots={rightPlayerSlots}
-          gameRoom={gameRoom}
-          currentPlayerId={currentPlayerId}
-        />
-      </div>
-      
+        <div className="hidden min-h-[calc(100vh-2rem)] gap-4 lg:grid lg:grid-cols-[18rem_1fr_18rem]">
+          <PlayerColumn
+            slots={leftPlayerSlots}
+            gameRoom={gameRoom}
+            currentPlayerId={currentPlayerId}
+          />
+
+          <section className="flex min-h-full flex-col gap-4">
+            <GameHeader
+              me={me}
+              currentPlayer={currentPlayer}
+              gameRoom={gameRoom}
+              error={error}
+            />
+
+            <div className="flex flex-1 items-center justify-center rounded-3xl border border-emerald-700 bg-emerald-700 p-6 shadow-inner dark:border-emerald-950 dark:bg-emerald-950">
+              <PyramidBoard
+                tiles={gameRoom.tiles}
+                onDrawTile={handleDrawTile}
+                disabled={gameRoom.hasEnded}
+              />
+            </div>
+
+            <RemainingTilesBar summary={gameRoom.remainingTileSummary} />
+
+            {gameRoom.hasEnded && (
+              <section className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-100">
+                <h2 className="text-xl font-semibold">Game ended</h2>
+                <p>Reason: {gameRoom.endReason}</p>
+              </section>
+            )}
+
+            {isHost && !gameRoom.hasEnded && (
+              <button
+                className="rounded border border-red-500 bg-red-100 px-4 py-2 text-red-900 hover:bg-red-200 dark:border-red-700 dark:bg-red-950 dark:text-red-100 dark:hover:bg-red-900"
+                onClick={handleAbortGame}
+              >
+                Abort game
+              </button>
+            )}
+
+            {showDebug && (
+              <DebugPanel
+                tiles={gameRoom.tiles}
+                hasEnded={gameRoom.hasEnded}
+                onDrawTile={handleDrawTile}
+              />
+            )}
+          </section>
+
+          <PlayerColumn
+            slots={rightPlayerSlots}
+            gameRoom={gameRoom}
+            currentPlayerId={currentPlayerId}
+          />
+        </div>
+      </main>
+
       {drawnTilePreview?.tileName && (
-        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+        <div className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center bg-black/20">
           <div className="animate-[tile-pop_500ms_ease-out_forwards] rounded-3xl bg-white/90 p-6 shadow-2xl dark:bg-slate-900/90">
             <img
               src={getTileImageSrc(drawnTilePreview.tileName)}
@@ -421,6 +423,6 @@ export default function GamePage() {
           </div>
         </div>
       )}
-    </main>
+    </>
   );
 }

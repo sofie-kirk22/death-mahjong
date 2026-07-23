@@ -175,9 +175,8 @@ export default function ProfilePage() {
                                         value={profile.summary.totalSips}
                                     />
                                     <ProfileStatCard
-                                        label="Average"
-                                        value={formatDrinkCount(profile.summary.averageSips)}
-                                        suffix="sips"
+                                        label="Average game"
+                                        value={`≈ ${formatDrinkCount(Math.round(profile.summary.averageSips))}`}
                                     />
                                     <ProfileStatCard
                                         label="Dragons"

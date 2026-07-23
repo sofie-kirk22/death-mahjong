@@ -173,6 +173,7 @@ export default function ProfilePage() {
                                     <ProfileStatCard
                                         label="Total sips"
                                         value={profile.summary.totalSips}
+                                        suffix={`${formatBeerAmount(profile.summary.totalSips)} beers`}
                                     />
                                     <ProfileStatCard
                                         label="Average game"
@@ -379,6 +380,14 @@ function ProfileGameRow({ game }: { game: ProfileGame }) {
             </div>
         </li>
     );
+}
+
+function formatBeerAmount(totalSips: number) {
+    const beers = Math.max(0, Number(totalSips) || 0) / 14;
+
+    return Number.isInteger(beers)
+        ? beers.toString()
+        : beers.toFixed(1);
 }
 
 function formatDuration(durationSeconds: number) {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getRoom } from "@/lib/api";
 import AppNav from "@/components/AppNav";
+import { formatDrinkCount } from "@/lib/formatDrinkCount";
 
 export default function GameEndPage() {
     const params = useParams<{ roomId: string }>();
@@ -73,7 +74,7 @@ export default function GameEndPage() {
             <main
                 className="min-h-screen bg-cover bg-center bg-no-repeat px-4 pb-4 pt-24 text-slate-950 dark:text-slate-100"
                 style={{
-                    backgroundImage: "url('/images/backgrounds/wood-table.png')",
+                    backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
                 }}
             >
                 <div className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-6xl flex-col gap-6 rounded-3xl bg-white/85 p-6 shadow-2xl backdrop-blur-sm dark:bg-slate-950/85">
@@ -140,15 +141,20 @@ export default function GameEndPage() {
                                             <p className="font-semibold">
                                                 #{index + 1} {summary.playerName}
                                             </p>
+
                                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                                 Latest:{" "}
                                                 {summary.latestTileName
-                                                    ? `${summary.latestTileName} — ${summary.latestSips} sips`
+                                                    ? `${summary.latestTileName} — ${formatDrinkCount(
+                                                        summary.latestSips ?? 0
+                                                    )}`
                                                     : "No tile drawn"}
                                             </p>
                                         </div>
 
-                                        <p className="text-2xl font-bold">{summary.totalSips}</p>
+                                        <p className="font-mono text-2xl font-bold">
+                                            {formatDrinkCount(summary.totalSips)}
+                                        </p>
                                     </li>
                                 ))}
                         </ul>

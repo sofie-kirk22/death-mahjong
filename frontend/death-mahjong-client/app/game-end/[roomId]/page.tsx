@@ -145,16 +145,25 @@ export default function GameEndPage() {
 
                                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                                 Latest:{" "}
-                                                {summary.latestTileName
-                                                    ? `${summary.latestTileName} — ${formatDrinkCount(
-                                                        summary.latestSips ?? 0
-                                                    )}`
-                                                    : "No tile drawn"}
+                                                {summary.latestTileName ? (
+                                                    <span className="inline-flex items-baseline gap-1">
+                                                        <span>{summary.latestTileName} —</span>
+                                                        <DrinkCountDisplay
+                                                            totalSips={summary.latestSips ?? 0}
+                                                            size="sm"
+                                                        />
+                                                    </span>
+                                                ) : (
+                                                    "No tile drawn"
+                                                )}
                                             </p>
                                         </div>
 
                                         <div className="text-right">
-                                            <DrinkCountDisplay totalSips={summary.totalSips} size="md" />
+                                            <DrinkCountDisplay
+                                                totalSips={summary.totalSips}
+                                                size="md"
+                                            />
                                         </div>
                                     </li>
                                 ))}

@@ -1,5 +1,6 @@
 import { getTileImageSrc } from "@/lib/tileImages";
 import { formatDrinkCount } from "@/lib/formatDrinkCount";
+import DrinkCountDisplay from "@/components/DrinkCountDisplay";
 
 export default function PlayerPanel({
     player,
@@ -37,7 +38,14 @@ export default function PlayerPanel({
                         : "-"}
                 </p>
                 <p>Dragons: {summary?.dragonCount ?? 0}</p>
-                <p>Total: {formatDrinkCount(summary?.totalSips ?? 0)} beers</p>
+                <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Total:</p>
+
+                    <DrinkCountDisplay
+                        totalSips={summary?.totalSips ?? 0}
+                        size="sm"
+                    />
+                </div>
             </div>
 
             <details className="border-t border-slate-200 pt-2 dark:border-slate-800">

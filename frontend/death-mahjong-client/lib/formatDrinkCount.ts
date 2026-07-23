@@ -16,7 +16,7 @@ const sipSymbols = [
 ];
 
 export function formatDrinkCount(totalSips: number) {
-  const safeTotalSips = Math.max(0, Math.floor(totalSips ?? 0));
+  const safeTotalSips = Math.max(0, Math.round(totalSips ?? 0));
 
   const beers = Math.floor(safeTotalSips / 14);
   const remainingSips = safeTotalSips % 14;

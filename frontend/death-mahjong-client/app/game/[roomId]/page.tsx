@@ -166,7 +166,7 @@ export default function GamePage() {
 
     drawnTilePreviewTimeoutRef.current = setTimeout(() => {
       setDrawnTilePreview(null);
-    }, 500);
+    }, 750);
   }
 
   async function handleDrawTile(tileId: string) {
@@ -410,7 +410,7 @@ export default function GamePage() {
 
       {drawnTilePreview?.tileName && (
         <div className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center bg-black/20">
-          <div className="animate-[tile-pop_500ms_ease-out_forwards] rounded-3xl bg-white/90 p-6 shadow-2xl dark:bg-slate-900/90">
+          <div className="animate-[tile-pop_750ms_ease-out_forwards] rounded-3xl bg-white/90 p-6 shadow-2xl dark:bg-slate-900/90">
             <img
               src={getTileImageSrc(drawnTilePreview.tileName)}
               alt={drawnTilePreview.tileName}

@@ -69,13 +69,18 @@ export async function startGame(roomId: string, playerId: string) {
   return response.json();
 }
 
-export async function drawTile(roomId: string, playerId: string, tileId: string) {
+export async function drawTile(
+  roomId: string, 
+  playerId: string, 
+  tileId: string,
+  drawForPlayerId?: string | null
+) {
   const response = await fetch(`${API_URL}/api/gamerooms/${roomId}/draw-tile`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ playerId, tileId }),
+    body: JSON.stringify({ playerId, tileId, drawForPlayerId }),
   });
 
   if (!response.ok) {

@@ -356,7 +356,40 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
     }
     try
     {
-        var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
+        var actorPlayerId = request.PlayerId;
+        var targetPlayerId = string.IsNullOrWhiteSpace(request.DrawForPlayerId)
+            ? request.PlayerId
+            : request.DrawForPlayerId;
+
+        var actorPlayer = gameRoom.Players
+            .FirstOrDefault(player => player.Id == actorPlayerId);
+
+        if (actorPlayer is null)
+        {
+            return Results.BadRequest("Acting player not found in the game room.");
+        }
+
+        var targetPlayer = gameRoom.Players
+            .FirstOrDefault(player => player.Id == targetPlayerId);
+
+        if (targetPlayer is null)
+        {
+            return Results.BadRequest("Target player not found in the game room.");
+        }
+
+        var isHostOverride = actorPlayerId != targetPlayerId;
+
+        if (isHostOverride && gameRoom.HostPlayerId != actorPlayerId)
+        {
+            return Results.BadRequest("Only the host can draw for another player.");
+        }
+
+        if (targetPlayerId != gameRoom.CurrentPlayerId)
+        {
+            return Results.BadRequest("The target player is not the current player.");
+        }
+
+        var move = gameEngine.DrawTile(gameRoom, targetPlayerId, request.TileId);
 
         gameEngine.UpdateDrawableTiles(gameRoom);
         gameEngine.IsGameOver(gameRoom);

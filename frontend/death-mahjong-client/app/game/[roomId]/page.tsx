@@ -184,7 +184,17 @@ export default function GamePage() {
         throw new Error("Missing playerId");
       }
 
-      const result = await drawTile(roomId, playerId, tileId);
+      const currentPlayerId =
+        gameRoom.currentPlayerId ?? gameRoom.players[gameRoom.currentPlayerIndex]?.id;
+
+      const isHost = playerId === gameRoom.hostPlayerId;
+
+      const drawForPlayerId =
+        isHost && currentPlayerId && currentPlayerId !== playerId
+          ? currentPlayerId
+          : playerId;
+
+      const result = await drawTile(roomId, playerId, tileId, drawForPlayerId);
 
       const updatedRoom = result.gameRoom;
       const move = result.move;

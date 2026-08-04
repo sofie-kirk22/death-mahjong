@@ -70,7 +70,7 @@ export async function recoverPlayer(
   });
 
   if (!response.ok) {
-    throw new Error("Could not recover play session");
+    throw new Error(await response.text());
   }
 
   return response.json();

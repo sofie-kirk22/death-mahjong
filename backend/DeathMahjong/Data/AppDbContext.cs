@@ -56,15 +56,20 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(tile => tile.Id);
 
+            entity.HasIndex(tile => tile.GameRoomId);
+
             entity.HasOne(tile => tile.GameRoom)
                 .WithMany(room => room.Tiles)
                 .HasForeignKey(tile => tile.GameRoomId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            entity.Property(tile => tile.GameRoomId)
+                .IsRequired();
+
             entity.Property(tile => tile.Name)
                 .IsRequired();
 
-            entity.Property(tile => tile.Type)
+            entity.Property(tile => tile.TileType)
                 .IsRequired();
         });
 
@@ -72,10 +77,15 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(move => move.Id);
 
+            entity.HasIndex(move => move.GameRoomId);
+
             entity.HasOne(move => move.GameRoom)
                 .WithMany(room => room.Moves)
                 .HasForeignKey(move => move.GameRoomId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(move => move.GameRoomId)
+                .IsRequired();
 
             entity.Property(move => move.PlayerId)
                 .IsRequired();

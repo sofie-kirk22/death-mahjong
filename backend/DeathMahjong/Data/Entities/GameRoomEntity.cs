@@ -23,6 +23,7 @@ public class GameRoomEntity
     public int MinPlayers { get; set; } = 2;
 
     public List<GamePlayerEntity> Players { get; set; } = new();
-    public List<GameTileEntity> Tiles { get; set; } = new();
-    public List<GameMoveEntity> Moves { get; set; } = new();
+    public ICollection<GameTileEntity> Tiles { get; set; } = new List<GameTileEntity>();
+
+    public ICollection<GameMoveEntity> Moves { get; set; } = new List<GameMoveEntity>();
 }

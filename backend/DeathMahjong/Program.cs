@@ -325,6 +325,7 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 ) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
+
     if (gameRoom == null)
     {
         return Results.NotFound("Game room not found.");
@@ -341,11 +342,37 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
         {
             Console.WriteLine($"- {player.DisplayName}: {player.Id}");
         }
+
         Console.WriteLine("----------------------");
+
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
 
         gameEngine.UpdateDrawableTiles(gameRoom);
         gameEngine.IsGameOver(gameRoom);
+
+        var drawingPlayer = gameRoom.Players
+            .FirstOrDefault(player => player.Id == move.PlayerId);
+
+        var moveEntity = new GameMoveEntity
+        {
+            Id = move.Id,
+            GameRoomId = gameRoom.Id,
+
+            PlayerId = move.PlayerId,
+            UserId = drawingPlayer?.UserId,
+            PlayerName = drawingPlayer?.DisplayName ?? "Unknown",
+
+            TileId = move.TileId,
+            TileName = move.TileName,
+            TileType = move.TileType.ToString(),
+            TileValue = move.TileValue,
+
+            Sips = move.Drinks,
+            DrawnAt = move.Timestamp
+        };
+
+        db.GameMoves.Add(moveEntity);
+        await db.SaveChangesAsync();
 
         await hubContext.Clients.Group(roomId).SendAsync("TileDrawn", new
         {

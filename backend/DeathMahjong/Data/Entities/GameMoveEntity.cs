@@ -22,6 +22,12 @@ public class GameMoveEntity
 
     public int TileValue { get; set; }
 
+    public int X { get; set; }
+
+    public int Y { get; set; }
+
+    public int Z { get; set; }
+
     public int Drinks { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

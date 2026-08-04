@@ -99,6 +99,15 @@ public class AppDbContext : DbContext
             entity.Property(move => move.TileType)
                 .IsRequired();
 
+            entity.Property(move => move.X)
+                .IsRequired();
+
+            entity.Property(move => move.Y)
+                .IsRequired();
+
+            entity.Property(move => move.Z)
+                .IsRequired();
+
             entity.Property(move => move.Drinks)
                 .IsRequired();
 

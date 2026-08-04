@@ -321,41 +321,15 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
 
     gameEngine.UpdateDrawableTiles(gameRoom);
 
-    var tileEntities = gameRoom.Tiles.Select(tile => new GameTileEntity
-    {
-        Id = tile.Id,
-        GameRoomId = gameRoom.Id,
-        Name = tile.Name,
-        TileType = tile.TileType.ToString(),
-        Value = tile.Value,
-        X = tile.X,
-        Y = tile.Y,
-        Z = tile.Z,
-        IsDrawn = tile.IsDrawn,
-        IsDrawable = tile.IsDrawable
-    }).ToList();
-
-    try
-    {
-        roomEntity.HasStarted = true;
-        roomEntity.StartedAt = startedAt;
-        roomEntity.CurrentPlayerIndex = 0;
-
-        db.GameTiles.AddRange(tileEntities);
-
-        await db.SaveChangesAsync();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Could not start game or save game tiles:");
-        Console.WriteLine(ex);
-
-        return Results.Problem(ex.Message);
-    }
-
     gameRoom.HasStarted = true;
     gameRoom.StartedAt = startedAt;
     gameRoom.CurrentPlayerIndex = 0;
+
+    roomEntity.HasStarted = true;
+    roomEntity.StartedAt = startedAt;
+    roomEntity.CurrentPlayerIndex = 0;
+
+    await db.SaveChangesAsync();
 
     await hubContext.Clients.Group(roomId).SendAsync("GameStarted", new
     {
@@ -403,6 +377,9 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
             TileName = move.TileName,
             TileType = move.TileType.ToString(),
             TileValue = move.TileValue,
+            X = move.X,
+            Y = move.Y,
+            Z = move.Z,
 
             Drinks = move.Drinks,
             CreatedAt = move.Timestamp

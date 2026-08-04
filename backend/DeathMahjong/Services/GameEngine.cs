@@ -331,6 +331,9 @@ public class GameEngine
             TileName = tile.Name,
             TileType = tile.TileType,
             TileValue = tile.Value,
+            X = tile.X,
+            Y = tile.Y,
+            Z = tile.Z,
             SameTileDrawCount = sameTileDrawCount,
             Drinks = drinks
         };

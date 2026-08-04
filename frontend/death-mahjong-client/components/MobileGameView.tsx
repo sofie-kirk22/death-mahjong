@@ -86,7 +86,7 @@ export default function MobileGameView({
                 className={[
                     "rounded-2xl border p-3 text-center shadow-sm",
                     isMyTurn
-                        ? "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-100"
+                        ? "border-sky-500 bg-sky-100 text-sky-950 ring-2 ring-sky-500 shadow-md dark:border-cyan-300 dark:bg-cyan-950 dark:text-cyan-50 dark:ring-cyan-300"
                         : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900",
                 ].join(" ")}
             >
@@ -108,6 +108,8 @@ export default function MobileGameView({
             >
                 Draw random free tile
             </button>
+
+            <RemainingTilesBar summary={gameRoom.remainingTileSummary} />
 
             <section className="rounded-3xl border border-emerald-700 bg-emerald-700 p-3 shadow-inner dark:border-emerald-950 dark:bg-emerald-950">
                 <div className="overflow-auto">

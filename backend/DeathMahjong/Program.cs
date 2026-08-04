@@ -382,19 +382,6 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
     }
     try
     {
-        Console.WriteLine("---- DRAW REQUEST ----");
-        Console.WriteLine($"Room ID: {roomId}");
-        Console.WriteLine($"Request Player ID: {request.PlayerId}");
-        Console.WriteLine($"Current Player Index: {gameRoom.CurrentPlayerIndex}");
-        Console.WriteLine($"Current Player ID: {gameRoom.CurrentPlayerId}");
-        Console.WriteLine("Players:");
-        foreach (var player in gameRoom.Players)
-        {
-            Console.WriteLine($"- {player.DisplayName}: {player.Id}");
-        }
-
-        Console.WriteLine("----------------------");
-
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
 
         gameEngine.UpdateDrawableTiles(gameRoom);
@@ -423,16 +410,34 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 
         db.GameMoves.Add(moveEntity);
 
-        var drawnTileEntity = await db.GameTiles
-            .FirstOrDefaultAsync(tile =>
-                tile.Id == move.TileId &&
-                tile.GameRoomId == gameRoom.Id
-            );
+        var roomEntity = await db.GameRooms
+            .FirstOrDefaultAsync(room => room.Id == gameRoom.Id);
 
-        if (drawnTileEntity is not null)
+        if (roomEntity is not null)
         {
-            drawnTileEntity.IsDrawn = true;
-            drawnTileEntity.IsDrawable = false;
+            roomEntity.CurrentPlayerIndex = gameRoom.CurrentPlayerIndex;
+            roomEntity.HasEnded = gameRoom.HasEnded;
+            roomEntity.EndReason = gameRoom.EndReason?.ToString();
+            roomEntity.EndedAt = gameRoom.EndedAt;
+            roomEntity.EndedByPlayerId = gameRoom.EndedByPlayerId;
+        }
+
+        var tileEntities = await db.GameTiles
+            .Where(tile => tile.GameRoomId == gameRoom.Id)
+            .ToListAsync();
+
+        var liveTilesById = gameRoom.Tiles
+            .ToDictionary(tile => tile.Id);
+
+        foreach (var tileEntity in tileEntities)
+        {
+            if (!liveTilesById.TryGetValue(tileEntity.Id, out var liveTile))
+            {
+                continue;
+            }
+
+            tileEntity.IsDrawn = liveTile.IsDrawn;
+            tileEntity.IsDrawable = liveTile.IsDrawable;
         }
 
         await db.SaveChangesAsync();

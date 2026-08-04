@@ -235,7 +235,6 @@ public class GameEngine
 
     public bool CanDrawTile(GameRoom gameRoom, string tileId)
     {
-        Console.WriteLine($"Checking if tile {tileId} can be drawn.");
         var tile = gameRoom.Tiles.FirstOrDefault(t => t.Id == tileId);
 
         if (tile == null || tile.IsDrawn)
@@ -252,16 +251,8 @@ public class GameEngine
             )
         );
 
-        Console.WriteLine($"Checking above for tile {tile.Name} at X:{tile.X}, Y:{tile.Y}, Z:{tile.Z}");
-
-        foreach (var t in gameRoom.Tiles.Where(t => !t.IsDrawn && t.Z == tile.Z + 1))
-        {
-            Console.WriteLine($"Upper tile candidate: {t.Name} at X:{t.X}, Y:{t.Y}, Z:{t.Z}");
-        }
-
         if (hasTileAbove)
         {
-            Console.WriteLine($"Tile {tile.Name} has a tile above it.");
             return false; // Cannot draw tile because there is a tile above it
         }
 
@@ -295,7 +286,6 @@ public class GameEngine
 
         if ((blockedOnBottom && blockedOnTop) || (blockedOnLeft && blockedOnRight))
         {
-            Console.WriteLine($"Tile {tile.Name} is blocked. blockedOnBottom: {blockedOnBottom}, blockedOnTop: {blockedOnTop}, blockedOnLeft: {blockedOnLeft}, blockedOnRight: {blockedOnRight}");
             return false; // Cannot draw tile because it is not free on either horizontal or vertical side
         }
 

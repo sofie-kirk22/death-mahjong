@@ -272,7 +272,8 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     StartGameRequest request,
     GameRoomStore gameRoomStore,
     GameEngine gameEngine,
-     IHubContext<GameHub> hubContext) =>
+    AppDbContext db,
+    IHubContext<GameHub> hubContext) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
     if (gameRoom == null)
@@ -303,6 +304,24 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
 
     gameRoom.Tiles = gameEngine.GenerateTiles(gameRoom.Players.Count, gameRoom.FullDeckMode);
     gameEngine.UpdateDrawableTiles(gameRoom);
+
+    var tileEntities = gameRoom.Tiles.Select(tile => new GameTileEntity
+    {
+        Id = tile.Id,
+        GameRoomId = gameRoom.Id,
+        Name = tile.Name,
+        TileType = tile.Type.ToString(),
+        Value = tile.Value,
+        X = tile.X,
+        Y = tile.Y,
+        Z = tile.Z,
+        IsDrawn = tile.IsDrawn,
+        IsDrawable = tile.IsDrawable
+    }).ToList();
+
+    db.GameTiles.AddRange(tileEntities);
+    await db.SaveChangesAsync();
+
     gameRoom.HasStarted = true;
     gameRoom.StartedAt = DateTime.UtcNow;
     gameRoom.CurrentPlayerIndex = 0;
@@ -372,6 +391,19 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
         };
 
         db.GameMoves.Add(moveEntity);
+
+        var drawnTileEntity = await db.GameTiles
+            .FirstOrDefaultAsync(tile =>
+                tile.Id == move.TileId &&
+                tile.GameRoomId == gameRoom.Id
+            );
+
+        if (drawnTileEntity is not null)
+        {
+            drawnTileEntity.IsDrawn = true;
+            drawnTileEntity.IsDrawable = false;
+        }
+
         await db.SaveChangesAsync();
 
         await hubContext.Clients.Group(roomId).SendAsync("TileDrawn", new

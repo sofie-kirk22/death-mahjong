@@ -14,6 +14,13 @@ export default function GameHeader({
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
+        if(me.displayName == null && currentPlayer.RecoveryMode) {
+            currentPlayer.RecoveryMode = false;
+            me = currentPlayer; 
+        }
+    })
+
+    useEffect(() => {
         if (gameRoom.endedAt) return;
 
         const intervalId = window.setInterval(() => {

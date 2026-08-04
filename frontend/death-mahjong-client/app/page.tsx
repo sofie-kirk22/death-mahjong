@@ -70,12 +70,11 @@ export default function HomePage() {
     try {
       setError("");
 
-      const user = await getOrCreateUser(joinName.trim());
+      const user = await getUser(joinName.trim());
 
       const result = await recoverPlayer(
         joinCode.trim(),
-        joinName.trim(),
-        user.id
+        joinName.trim()
       );
 
       saveGameSession(
@@ -84,7 +83,7 @@ export default function HomePage() {
         result.gameRoom.joinCode
       );
 
-      router.push(`/room/${result.gameRoom.id}`);
+      router.push(`/game/${result.gameRoom.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not join room");
     }
@@ -270,4 +269,25 @@ async function getOrCreateUser(displayName: string) {
   });
 
   return newUser;
+}
+
+async function getUser(displayName: string) {
+  const trimmedDisplayName = displayName.trim();
+
+  if (!trimmedDisplayName) {
+    throw new Error("Display name is required.");
+  }
+
+  const lookupResult = await getUserByDisplayName(trimmedDisplayName);
+
+  if (lookupResult.exists && lookupResult.user) {
+    saveUser({
+      id: lookupResult.user.id,
+      displayName: lookupResult.user.displayName,
+    });
+
+    return lookupResult.user;
+  }
+
+  throw new Error("User does not exist");
 }

@@ -278,11 +278,13 @@ app.MapPost("/api/gamerooms/{joinCode}/recover", (
 
     if (gameRoom is null)
     {
+        Console.WriteLine("Game room not found.");
         return Results.NotFound("Game room not found.");
     }
 
     if (gameRoom.HasEnded)
     {
+        Console.WriteLine("Game Ended.");
         return Results.BadRequest("Game has already ended.");
     }
 
@@ -290,6 +292,7 @@ app.MapPost("/api/gamerooms/{joinCode}/recover", (
 
     if (string.IsNullOrWhiteSpace(displayName))
     {
+        Console.WriteLine("Display name missing");
         return Results.BadRequest("Display name is required.");
     }
 
@@ -302,6 +305,7 @@ app.MapPost("/api/gamerooms/{joinCode}/recover", (
 
     if (player is null)
     {
+        Console.WriteLine("Player doesnt exist");
         return Results.NotFound("No player with that display name exists in this room.");
     }
 

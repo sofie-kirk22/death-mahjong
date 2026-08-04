@@ -292,7 +292,7 @@ app.MapPost("/api/gamerooms/{joinCode}/recover", (
 
     if (string.IsNullOrWhiteSpace(displayName))
     {
-        Console.Writeline("Display name missing");
+        Console.WriteLine("Display name missing");
         return Results.BadRequest("Display name is required.");
     }
 

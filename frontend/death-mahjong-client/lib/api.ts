@@ -55,8 +55,7 @@ export async function joinRoom(
 
 export async function recoverPlayer(
   joinCode: string,
-  playerName: string,
-  userId?: string | null
+  displayName: string
 ) {
   const response = await fetch(`${API_URL}/api/gamerooms/${joinCode}/recover`, {
     method: "POST",
@@ -64,8 +63,7 @@ export async function recoverPlayer(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      playerName,
-      userId,
+      displayName
     }),
   });
 

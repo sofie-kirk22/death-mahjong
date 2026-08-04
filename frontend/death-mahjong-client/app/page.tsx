@@ -74,8 +74,7 @@ export default function HomePage() {
 
       const result = await recoverPlayer(
         joinCode.trim(),
-        joinName.trim(),
-        user.id
+        joinName.trim()
       );
 
       saveGameSession(

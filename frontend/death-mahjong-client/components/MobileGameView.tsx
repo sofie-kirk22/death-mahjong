@@ -35,6 +35,13 @@ export default function MobileGameView({
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
+        if(me == null && currentPlayer.RecoveryMode) {
+            currentPlayer.RecoveryMode = false;
+            me = currentPlayer; 
+        }
+    })
+
+    useEffect(() => {
         if (gameRoom.endedAt) return;
 
         const intervalId = window.setInterval(() => {

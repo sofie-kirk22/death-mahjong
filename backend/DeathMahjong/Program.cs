@@ -310,7 +310,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         Id = tile.Id,
         GameRoomId = gameRoom.Id,
         Name = tile.Name,
-        TileType = tile.Type.ToString(),
+        TileType = tile.TileType.ToString(),
         Value = tile.Value,
         X = tile.X,
         Y = tile.Y,

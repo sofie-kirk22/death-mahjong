@@ -40,18 +40,18 @@ public class GameEngine
         var selectedWindNames = windOrder.Take(config.WindSuitCount).ToHashSet();
 
         var suitTiles = tiles
-            .Where(t => t.Type == TileType.Character || t.Type == TileType.Bamboo || t.Type == TileType.Dot)
+            .Where(t => t.TileType == TileType.Character || t.TileType == TileType.Bamboo || t.TileType == TileType.Dot)
             .ToList();
 
         var windTiles = tiles
-            .Where(t => t.Type == TileType.Wind && selectedWindNames.Contains(t.Name))
+            .Where(t => t.TileType == TileType.Wind && selectedWindNames.Contains(t.Name))
             .GroupBy(t => t.Name)
             .Take(config.WindSuitCount)
             .SelectMany(group => group.Take(4))
             .ToList();
 
         var dragonTiles = tiles
-            .Where(t => t.Type == TileType.Dragon)
+            .Where(t => t.TileType == TileType.Dragon)
             .Take(config.DragonCount)
             .ToList();
 
@@ -94,7 +94,7 @@ public class GameEngine
         tiles.Add(new Tile
         {
             Name = "Bamboo 1",
-            Type = TileType.Bamboo,
+            TileType = TileType.Bamboo,
             X = 0,
             Y = 0,
             Z = 0
@@ -103,7 +103,7 @@ public class GameEngine
         tiles.Add(new Tile
         {
             Name = "Bamboo 2",
-            Type = TileType.Bamboo,
+            TileType = TileType.Bamboo,
             X = 2,
             Y = 0,
             Z = 0
@@ -112,7 +112,7 @@ public class GameEngine
         tiles.Add(new Tile
         {
             Name = "Dragon Red",
-            Type = TileType.Dragon,
+            TileType = TileType.Dragon,
             Value = 28,
             X = 0,
             Y = 2,
@@ -122,7 +122,7 @@ public class GameEngine
         tiles.Add(new Tile
         {
             Name = "Dragon Green",
-            Type = TileType.Dragon,
+            TileType = TileType.Dragon,
             Value = 28,
             X = 2,
             Y = 2,
@@ -132,7 +132,7 @@ public class GameEngine
         tiles.Add(new Tile
         {
             Name = "Wind East",
-            Type = TileType.Wind,
+            TileType = TileType.Wind,
             Value = 14,
             X = 1,
             Y = 1,
@@ -164,7 +164,7 @@ public class GameEngine
         {
             Id = dto.Id,
             Name = dto.Name,
-            Type = Enum.Parse<TileType>(dto.TileType, ignoreCase: true),
+            TileType = Enum.Parse<TileType>(dto.TileType, ignoreCase: true),
             Value = dto.Value,
             X = 0, // Placeholder, actual X coordinate should be set based on the layout
             Y = 0, // Placeholder, actual Y coordinate should be set based on the layout
@@ -339,7 +339,7 @@ public class GameEngine
             PlayerId = playerId,
             TileId = tile.Id,
             TileName = tile.Name,
-            TileType = tile.Type,
+            TileType = tile.TileType,
             TileValue = tile.Value,
             SameTileDrawCount = sameTileDrawCount,
             Drinks = drinks

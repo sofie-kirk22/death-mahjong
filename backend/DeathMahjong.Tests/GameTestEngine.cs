@@ -339,7 +339,7 @@ public class GameEngineTests
         {
             Id = id,
             Name = name,
-            Type = type,
+            TileType = type,
             Value = value,
             X = x,
             Y = y,
@@ -381,7 +381,7 @@ public class GameEngineTests
         {
             Id = "tile-1",
             Name = "Bamboo 1",
-            Type = TileType.Bamboo,
+            TileType = TileType.Bamboo,
             Value = 1,
             X = 0,
             Y = 0,

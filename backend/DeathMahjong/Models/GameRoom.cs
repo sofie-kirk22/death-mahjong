@@ -62,10 +62,10 @@ public class GameRoom
     public RemainingTileSummary RemainingTileSummary =>
         new RemainingTileSummary
         {
-            BambooCount = RemainingTiles.Count(t => !t.IsDrawn && t.Type == TileType.Bamboo),
-            CharacterCount = RemainingTiles.Count(t => !t.IsDrawn && t.Type == TileType.Character),
-            DotCount = RemainingTiles.Count(t => !t.IsDrawn && t.Type == TileType.Dot),
-            WindCount = RemainingTiles.Count(t => !t.IsDrawn && t.Type == TileType.Wind),
-            DragonCount = RemainingTiles.Count(t => !t.IsDrawn && t.Type == TileType.Dragon)
+            BambooCount = RemainingTiles.Count(t => !t.IsDrawn && t.TileType == TileType.Bamboo),
+            CharacterCount = RemainingTiles.Count(t => !t.IsDrawn && t.TileType == TileType.Character),
+            DotCount = RemainingTiles.Count(t => !t.IsDrawn && t.TileType == TileType.Dot),
+            WindCount = RemainingTiles.Count(t => !t.IsDrawn && t.TileType == TileType.Wind),
+            DragonCount = RemainingTiles.Count(t => !t.IsDrawn && t.TileType == TileType.Dragon)
         };
 }

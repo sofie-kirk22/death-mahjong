@@ -276,6 +276,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     IHubContext<GameHub> hubContext) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
+
     if (gameRoom == null)
     {
         return Results.NotFound("Game room not found.");
@@ -292,6 +293,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     }
 
     var player = gameRoom.Players.FirstOrDefault(p => p.Id == request.PlayerId);
+
     if (player == null)
     {
         return Results.BadRequest("Player not found in the game room.");
@@ -302,29 +304,32 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         return Results.BadRequest("Only the host player can start the game.");
     }
 
-    gameRoom.Tiles = gameEngine.GenerateTiles(gameRoom.Players.Count, gameRoom.FullDeckMode);
+    var roomEntity = await db.GameRooms
+        .FirstOrDefaultAsync(room => room.Id == gameRoom.Id);
+
+    if (roomEntity is null)
+    {
+        return Results.BadRequest("Game room exists in memory, but was not found in the database.");
+    }
+
+    var startedAt = DateTime.UtcNow;
+
+    gameRoom.Tiles = gameEngine.GenerateTiles(
+        gameRoom.Players.Count,
+        gameRoom.FullDeckMode
+    );
+
     gameEngine.UpdateDrawableTiles(gameRoom);
 
-    var tileEntities = gameRoom.Tiles.Select(tile => new GameTileEntity
-    {
-        Id = tile.Id,
-        GameRoomId = gameRoom.Id,
-        Name = tile.Name,
-        TileType = tile.Type.ToString(),
-        Value = tile.Value,
-        X = tile.X,
-        Y = tile.Y,
-        Z = tile.Z,
-        IsDrawn = tile.IsDrawn,
-        IsDrawable = tile.IsDrawable
-    }).ToList();
-
-    db.GameTiles.AddRange(tileEntities);
-    await db.SaveChangesAsync();
-
     gameRoom.HasStarted = true;
-    gameRoom.StartedAt = DateTime.UtcNow;
+    gameRoom.StartedAt = startedAt;
     gameRoom.CurrentPlayerIndex = 0;
+
+    roomEntity.HasStarted = true;
+    roomEntity.StartedAt = startedAt;
+    roomEntity.CurrentPlayerIndex = 0;
+
+    await db.SaveChangesAsync();
 
     await hubContext.Clients.Group(roomId).SendAsync("GameStarted", new
     {
@@ -351,19 +356,6 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
     }
     try
     {
-        Console.WriteLine("---- DRAW REQUEST ----");
-        Console.WriteLine($"Room ID: {roomId}");
-        Console.WriteLine($"Request Player ID: {request.PlayerId}");
-        Console.WriteLine($"Current Player Index: {gameRoom.CurrentPlayerIndex}");
-        Console.WriteLine($"Current Player ID: {gameRoom.CurrentPlayerId}");
-        Console.WriteLine("Players:");
-        foreach (var player in gameRoom.Players)
-        {
-            Console.WriteLine($"- {player.DisplayName}: {player.Id}");
-        }
-
-        Console.WriteLine("----------------------");
-
         var move = gameEngine.DrawTile(gameRoom, request.PlayerId, request.TileId);
 
         gameEngine.UpdateDrawableTiles(gameRoom);
@@ -385,6 +377,9 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
             TileName = move.TileName,
             TileType = move.TileType.ToString(),
             TileValue = move.TileValue,
+            X = move.X,
+            Y = move.Y,
+            Z = move.Z,
 
             Drinks = move.Drinks,
             CreatedAt = move.Timestamp
@@ -392,16 +387,34 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 
         db.GameMoves.Add(moveEntity);
 
-        var drawnTileEntity = await db.GameTiles
-            .FirstOrDefaultAsync(tile =>
-                tile.Id == move.TileId &&
-                tile.GameRoomId == gameRoom.Id
-            );
+        var roomEntity = await db.GameRooms
+            .FirstOrDefaultAsync(room => room.Id == gameRoom.Id);
 
-        if (drawnTileEntity is not null)
+        if (roomEntity is not null)
         {
-            drawnTileEntity.IsDrawn = true;
-            drawnTileEntity.IsDrawable = false;
+            roomEntity.CurrentPlayerIndex = gameRoom.CurrentPlayerIndex;
+            roomEntity.HasEnded = gameRoom.HasEnded;
+            roomEntity.EndReason = gameRoom.EndReason?.ToString();
+            roomEntity.EndedAt = gameRoom.EndedAt;
+            roomEntity.EndedByPlayerId = gameRoom.EndedByPlayerId;
+        }
+
+        var tileEntities = await db.GameTiles
+            .Where(tile => tile.GameRoomId == gameRoom.Id)
+            .ToListAsync();
+
+        var liveTilesById = gameRoom.Tiles
+            .ToDictionary(tile => tile.Id);
+
+        foreach (var tileEntity in tileEntities)
+        {
+            if (!liveTilesById.TryGetValue(tileEntity.Id, out var liveTile))
+            {
+                continue;
+            }
+
+            tileEntity.IsDrawn = liveTile.IsDrawn;
+            tileEntity.IsDrawable = liveTile.IsDrawable;
         }
 
         await db.SaveChangesAsync();

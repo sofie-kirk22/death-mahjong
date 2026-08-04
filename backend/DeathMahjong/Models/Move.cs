@@ -11,6 +11,9 @@ public class Move
     public TileType TileType { get; set; }
     
     public int TileValue { get; set; }
+    public int X { get; set; }
+    public int Y { get; set; }  
+    public int Z { get; set; }
     public int SameTileDrawCount { get; set; }
     public int Drinks { get; set; }
 

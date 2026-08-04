@@ -270,7 +270,7 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
 //For recovering a player
 app.MapPost("/api/gamerooms/{joinCode}/recover", (
     string joinCode,
-    RecoverPlayerRequest request,
+    RecoveryRequest request,
     GameRoomStore gameRoomStore
 ) =>
 {

@@ -53,6 +53,29 @@ export async function joinRoom(
   return response.json();
 }
 
+export async function recoverPlayer(
+  joinCode: string,
+  playerName: string,
+  userId?: string | null
+) {
+  const response = await fetch(`${API_URL}/api/gamerooms/${joinCode}/recover`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      playerName,
+      userId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not recover play session");
+  }
+
+  return response.json();
+}
+
 export async function startGame(roomId: string, playerId: string) {
   const response = await fetch(`${API_URL}/api/gamerooms/${roomId}/start`, {
     method: "POST",

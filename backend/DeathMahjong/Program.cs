@@ -267,6 +267,51 @@ app.MapPost("/api/gamerooms/{joinCode}/join", async (
     });
 });
 
+//For recovering a player
+app.MapPost("/api/gamerooms/{joinCode}/recover", (
+    string joinCode,
+    RecoveryRequest request,
+    GameRoomStore gameRoomStore
+) =>
+{
+    var gameRoom = gameRoomStore.GetByJoinCode(joinCode);
+
+    if (gameRoom is null)
+    {
+        return Results.NotFound("Game room not found.");
+    }
+
+    if (gameRoom.HasEnded)
+    {
+        return Results.BadRequest("Game has already ended.");
+    }
+
+    var displayName = request.DisplayName.Trim();
+
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        return Results.BadRequest("Display name is required.");
+    }
+
+    var player = gameRoom.Players.FirstOrDefault(player =>
+        player.DisplayName.Trim().Equals(
+            displayName,
+            StringComparison.OrdinalIgnoreCase
+        )
+    );
+
+    if (player is null)
+    {
+        return Results.NotFound("No player with that display name exists in this room.");
+    }
+
+    return Results.Ok(new
+    {
+        gameRoom,
+        player
+    });
+});
+
 app.MapPost("/api/gamerooms/{roomId}/start", async (
     string roomId,
     StartGameRequest request,

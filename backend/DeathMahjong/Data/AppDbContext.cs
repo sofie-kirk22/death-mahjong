@@ -98,6 +98,12 @@ public class AppDbContext : DbContext
 
             entity.Property(move => move.TileType)
                 .IsRequired();
+
+            entity.Property(move => move.Drinks)
+                .IsRequired();
+
+            entity.Property(move => move.CreatedAt)
+                .IsRequired();
         });
 
         modelBuilder.Entity<CompletedGameEntity>(entity =>

@@ -386,8 +386,8 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
             TileType = move.TileType.ToString(),
             TileValue = move.TileValue,
 
-            Sips = move.Drinks,
-            DrawnAt = move.Timestamp
+            Drinks = move.Drinks,
+            CreatedAt = move.Timestamp
         };
 
         db.GameMoves.Add(moveEntity);

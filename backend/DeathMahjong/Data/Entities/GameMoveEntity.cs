@@ -22,7 +22,7 @@ public class GameMoveEntity
 
     public int TileValue { get; set; }
 
-    public int Sips { get; set; }
+    public int Drinks { get; set; }
 
-    public DateTime DrawnAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

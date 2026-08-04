@@ -218,7 +218,7 @@ export default function HomePage() {
                   Join room
                 </button>
               </div>
-              <div>
+              <div className="mt-3">
                 <button
                   className="w-full rounded-xl bg-red-700 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
                   onClick={handleRecoverPlayer}

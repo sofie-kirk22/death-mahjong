@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createRoom, joinRoom } from "@/lib/api";
+import { createRoom, joinRoom, recoverPlayer } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { saveGameSession } from "@/lib/gameSession";
 import { createUser, getUserByDisplayName } from "@/lib/api";
@@ -49,6 +49,30 @@ export default function HomePage() {
       const user = await getOrCreateUser(joinName.trim());
 
       const result = await joinRoom(
+        joinCode.trim(),
+        joinName.trim(),
+        user.id
+      );
+
+      saveGameSession(
+        result.gameRoom.id,
+        result.player.id,
+        result.gameRoom.joinCode
+      );
+
+      router.push(`/room/${result.gameRoom.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not join room");
+    }
+  }
+
+  async function handleRecoverPlayer() {
+    try {
+      setError("");
+
+      const user = await getOrCreateUser(joinName.trim());
+
+      const result = await recoverPlayer(
         joinCode.trim(),
         joinName.trim(),
         user.id
@@ -193,6 +217,13 @@ export default function HomePage() {
                 disabled={!joinCode.trim() || !joinName.trim()}
               >
                 Join room
+              </button>
+              <button
+                className="w-full rounded-xl bg-red-700 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-600 dark:hover:bg-red-700"
+                onClick={handleRecoverPlayer}
+                disabled={!joinCode.trim() || !joinName.trim()}
+              >
+                Recover play session
               </button>
             </section>
           </div>

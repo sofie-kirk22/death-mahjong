@@ -6,6 +6,7 @@ import { PyramidBoard } from "./PyramidBoard";
 import { getTileImageSrc } from "@/lib/tileImages";
 import { formatDrinkCount } from "@/lib/formatDrinkCount";
 import DrinkCountDisplay from "./DrinkCountDisplay";
+import RemainingTilesBar from "./RemainingTilesBar";
 
 export default function MobileGameView({
     gameRoom,
@@ -171,6 +172,8 @@ export default function MobileGameView({
                     </div>
                 </details>
             </section>
+
+            <RemainingTilesBar summary={gameRoom.remainingTileSummary}/>
 
             {isHost && !gameRoom.hasEnded && (
                 <button

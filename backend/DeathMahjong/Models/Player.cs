@@ -6,5 +6,4 @@ public class Player
     public string? UserId { get; set; }
     public string DisplayName { get; set; } = "";
     public string Color { get; set; } = "#FFFFFF"; // Default to white
-    public bool RecoveryMode {get; set;} = true;
 }

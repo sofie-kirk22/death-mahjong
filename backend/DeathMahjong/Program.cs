@@ -276,6 +276,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     IHubContext<GameHub> hubContext) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
+
     if (gameRoom == null)
     {
         return Results.NotFound("Game room not found.");
@@ -292,6 +293,7 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
     }
 
     var player = gameRoom.Players.FirstOrDefault(p => p.Id == request.PlayerId);
+
     if (player == null)
     {
         return Results.BadRequest("Player not found in the game room.");
@@ -302,7 +304,21 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         return Results.BadRequest("Only the host player can start the game.");
     }
 
-    gameRoom.Tiles = gameEngine.GenerateTiles(gameRoom.Players.Count, gameRoom.FullDeckMode);
+    var roomEntity = await db.GameRooms
+        .FirstOrDefaultAsync(room => room.Id == gameRoom.Id);
+
+    if (roomEntity is null)
+    {
+        return Results.BadRequest("Game room exists in memory, but was not found in the database.");
+    }
+
+    var startedAt = DateTime.UtcNow;
+
+    gameRoom.Tiles = gameEngine.GenerateTiles(
+        gameRoom.Players.Count,
+        gameRoom.FullDeckMode
+    );
+
     gameEngine.UpdateDrawableTiles(gameRoom);
 
     var tileEntities = gameRoom.Tiles.Select(tile => new GameTileEntity
@@ -319,11 +335,26 @@ app.MapPost("/api/gamerooms/{roomId}/start", async (
         IsDrawable = tile.IsDrawable
     }).ToList();
 
-    db.GameTiles.AddRange(tileEntities);
-    await db.SaveChangesAsync();
+    try
+    {
+        roomEntity.HasStarted = true;
+        roomEntity.StartedAt = startedAt;
+        roomEntity.CurrentPlayerIndex = 0;
+
+        db.GameTiles.AddRange(tileEntities);
+
+        await db.SaveChangesAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Could not start game or save game tiles:");
+        Console.WriteLine(ex);
+
+        return Results.Problem(ex.Message);
+    }
 
     gameRoom.HasStarted = true;
-    gameRoom.StartedAt = DateTime.UtcNow;
+    gameRoom.StartedAt = startedAt;
     gameRoom.CurrentPlayerIndex = 0;
 
     await hubContext.Clients.Group(roomId).SendAsync("GameStarted", new

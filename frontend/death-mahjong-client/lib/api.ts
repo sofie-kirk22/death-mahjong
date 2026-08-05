@@ -185,6 +185,16 @@ export async function getRecentGames(limit = 10) {
   return response.json();
 }
 
+export async function getCompletedGame(gameId: string) {
+  const response = await fetch(`${API_URL}/api/stats/completed-games/${gameId}`);
+
+  if (!response.ok) {
+    throw new Error("Could not load completed game");
+  }
+
+  return response.json();
+}
+
 export async function getCompletedGames(limit = 50) {
   const response = await fetch(
     `${API_URL}/api/stats/completed-games?limit=${limit}`

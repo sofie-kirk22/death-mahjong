@@ -717,6 +717,56 @@ stats.MapGet("/completed-games", async (AppDbContext db, int limit = 50) =>
     return Results.Ok(games);
 });
 
+stats.MapGet("/completed-games/{gameId}", async (
+    string gameId,
+    AppDbContext db) =>
+{
+    var game = await db.CompletedGames
+        .AsNoTracking()
+        .Include(game => game.Players)
+        .Where(game => game.Id == gameId)
+        .Select(game => new
+        {
+            game.Id,
+            game.StartedAt,
+            game.EndedAt,
+            game.DurationSeconds,
+
+            game.HardCoreMode,
+            game.FullDeckMode,
+
+            game.PlayerCount,
+            game.DrawnTileCount,
+            game.TotalSips,
+
+            game.WinnerPlayerId,
+            game.WinnerPlayerName,
+
+            game.EndReason,
+
+            Players = game.Players
+                .OrderBy(player => player.FinalRank)
+                .Select(player => new
+                {
+                    player.PlayerId,
+                    player.UserId,
+                    player.DisplayName,
+                    player.FinalRank,
+                    player.TotalSips,
+                    player.DragonCount,
+                    player.WindCount,
+                    player.LatestTileName,
+                    player.LatestSips
+                })
+                .ToList()
+        })
+        .FirstOrDefaultAsync();
+
+    return game is null
+        ? Results.NotFound("Completed game not found.")
+        : Results.Ok(game);
+});
+
 stats.MapGet("/recent-games", async (AppDbContext db, int limit = 10) =>
 {
     limit = Math.Clamp(limit, 1, 50);

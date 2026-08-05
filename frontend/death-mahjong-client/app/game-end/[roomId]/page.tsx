@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getRoom } from "@/lib/api";
+import { getCompletedGame, getRoom } from "@/lib/api";
 import AppNav from "@/components/AppNav";
 import DrinkCountDisplay from "@/components/DrinkCountDisplay";
-import { formatDrinkCount } from "@/lib/formatDrinkCount";
 
 export default function GameEndPage() {
     const params = useParams<{ roomId: string }>();
@@ -18,8 +17,16 @@ export default function GameEndPage() {
     useEffect(() => {
         async function loadRoom() {
             try {
-                const data = await getRoom(roomId);
-                setGameRoom(data.room ?? data.gameRoom ?? data);
+                setError("");
+
+                try {
+                    const completedGame = await getCompletedGame(roomId);
+                    setGameRoom(completedGame);
+                    return;
+                } catch {
+                    const liveRoom = await getRoom(roomId);
+                    setGameRoom(liveRoom.room ?? liveRoom.gameRoom ?? liveRoom);
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Could not load game end");
             }
@@ -56,9 +63,23 @@ export default function GameEndPage() {
         );
     }
 
-    const playerSummaries = gameRoom.playerDrinksSummaries ?? [];
+    const rawPlayerSummaries =
+        gameRoom.playerDrinksSummaries ?? gameRoom.players ?? [];
 
-    const duration = formatDuration(gameRoom.startedAt, gameRoom.endedAt);
+    const playerSummaries = rawPlayerSummaries.map((player: any) => ({
+        playerId: player.playerId,
+        playerName: player.playerName ?? player.displayName,
+        totalSips: player.totalSips ?? 0,
+        dragonCount: player.dragonCount ?? 0,
+        windCount: player.windCount ?? 0,
+        latestTileName: player.latestTileName,
+        latestSips: player.latestSips ?? 0,
+    }));
+
+    const duration =
+        typeof gameRoom.durationSeconds === "number"
+            ? formatDurationSeconds(gameRoom.durationSeconds)
+            : formatDuration(gameRoom.startedAt, gameRoom.endedAt);
 
     const winner = [...playerSummaries].sort(
         (a: any, b: any) => b.totalSips - a.totalSips
@@ -205,7 +226,10 @@ export default function GameEndPage() {
                                     )}
                                 />
 
-                                <StatCard label="Players" value={gameRoom.players?.length ?? 0} />
+                                <StatCard
+                                    label="Players"
+                                    value={gameRoom.playerCount ?? playerSummaries.length}
+                                />
 
                                 <StatCard label="Duration" value={duration} mono />
                             </div>
@@ -243,6 +267,18 @@ function formatDuration(startedAt?: string, endedAt?: string | null) {
     ].join(":");
 }
 
+function formatDurationSeconds(durationSeconds: number) {
+    const hours = Math.floor(durationSeconds / 3600);
+    const minutes = Math.floor((durationSeconds % 3600) / 60);
+    const seconds = durationSeconds % 60;
+
+    return [
+        hours.toString().padStart(2, "0"),
+        minutes.toString().padStart(2, "0"),
+        seconds.toString().padStart(2, "0"),
+    ].join(":");
+}
+
 function StatCard({
     label,
     value,
@@ -261,3 +297,4 @@ function StatCard({
         </div>
     );
 }
+

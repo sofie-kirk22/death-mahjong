@@ -175,7 +175,14 @@ export default function StatsPage() {
                                 ) : (
                                     <ul className="space-y-3">
                                         {recentGames.map((game) => (
-                                            <RecentGameRow key={game.id} game={game} />
+                                            <li key={game.id}>
+                                                <Link
+                                                    href={`/game-end/${game.id}`}
+                                                    className="block rounded-xl border border-slate-200 bg-slate-50 p-3 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                                                >
+                                                    <RecentGameRow game={game} />
+                                                </Link>
+                                            </li>
                                         ))}
                                     </ul>
                                 )}
@@ -278,7 +285,7 @@ function LeaderboardCard({
 
 function RecentGameRow({ game }: { game: RecentGame }) {
     return (
-        <li className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+        <div>
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <p className="font-semibold">
@@ -319,7 +326,7 @@ function RecentGameRow({ game }: { game: RecentGame }) {
                     </span>
                 )}
             </div>
-        </li>
+        </div>
     );
 }
 

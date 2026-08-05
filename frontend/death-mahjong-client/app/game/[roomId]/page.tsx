@@ -428,17 +428,18 @@ export default function GamePage() {
           backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
         }}
       >
-        <div className="fixed right-4 top-4 z-[9999] flex gap-2">
-          <button
-            type="button"
-            onClick={handleToggleTurnSound}
-            className="fixed right-4 top-4 z-[9999] rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            {turnSoundEnabled ? "🔔" : "🔕"}
-          </button>
-        </div>
 
         <section className="lg:hidden">
+          <div className="mb-3 flex justify-end">
+            <button
+              type="button"
+              onClick={handleToggleTurnSound}
+              className="rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {turnSoundEnabled ? "🔔" : "🔕"}
+            </button>
+          </div>
+
           <MobileGameView
             gameRoom={gameRoom}
             me={me}
@@ -462,12 +463,22 @@ export default function GamePage() {
           />
 
           <section className="flex min-h-full flex-col gap-4">
-            <GameHeader
-              me={me}
-              currentPlayer={currentPlayer}
-              gameRoom={gameRoom}
-              error={error}
-            />
+            <div className="relative">
+              <GameHeader
+                me={me}
+                currentPlayer={currentPlayer}
+                gameRoom={gameRoom}
+                error={error}
+              />
+
+              <button
+                type="button"
+                onClick={handleToggleTurnSound}
+                className="absolute right-4 top-4 rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                {turnSoundEnabled ? "🔔" : "🔕"}
+              </button>
+            </div>
 
             <div className="flex flex-1 items-center justify-center rounded-3xl border border-emerald-700 bg-emerald-700 p-6 shadow-inner dark:border-emerald-950 dark:bg-emerald-950">
               <PyramidBoard

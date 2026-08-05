@@ -29,13 +29,23 @@ export default function GamePage() {
   const drawnTilePreviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  const TURN_SOUND_ENABLED_KEY = "deathMahjongTurnSoundEnabled";
-
-  const [turnSoundEnabled, setTurnSoundEnabled] = useState(true);
+  const SOUND_ENABLED_KEY = "deathMahjongSoundEnabled";
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const previousCurrentPlayerIdRef = useRef<string | null>(null);
   const hasInitializedTurnSoundRef = useRef(false);
   const turnAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const lastDrawSoundMoveIdRef = useRef<string | null>(null);
+
+  const drawAudioRefs = useRef<Record<string, HTMLAudioElement | null>>({
+    redDragon: null,
+    greenDragon: null,
+    whiteDragon: null,
+    wind: null,
+    specialDragon: null,
+    specialWind: null,
+  });
 
   useEffect(() => {
     async function loadRoom() {
@@ -138,6 +148,83 @@ export default function GamePage() {
     };
   }, []);
 
+  function playDrawAudio(soundKey: string) {
+    const audio = drawAudioRefs.current[soundKey];
+
+    if (!audio) return;
+
+    audio.currentTime = 0;
+
+    void audio.play().catch(() => {
+      console.log(
+        "Draw sound could not play. Browser may require user interaction first."
+      );
+    });
+  }
+
+  function getDragonSoundKey(tileName: string) {
+    const normalizedTileName = tileName.toLowerCase();
+
+    if (normalizedTileName.includes("red")) {
+      return "redDragon";
+    }
+
+    if (normalizedTileName.includes("green")) {
+      return "greenDragon";
+    }
+
+    if (normalizedTileName.includes("white")) {
+      return "whiteDragon";
+    }
+
+    return "redDragon";
+  }
+
+  function playDrawSoundForMove(move: any) {
+    if (!soundEnabled) return;
+
+    const myPlayerId = getPlayerIdForRoom(roomId);
+
+    if (!myPlayerId) return;
+
+    // This makes the sound play only on the device of the player who drew the tile.
+    if (move.playerId !== myPlayerId) return;
+
+    const tileType = String(move.tileType ?? "").toLowerCase();
+    const tileName = String(move.tileName ?? "").toLowerCase();
+
+    const isDragon = tileType === "dragon" || tileName.includes("dragon");
+    const isWind = tileType === "wind" || tileName.includes("wind");
+
+    if (!isDragon && !isWind) return;
+
+    const shouldPlaySpecialSound = Math.random() < 0.05;
+
+    if (isDragon) {
+      playDrawAudio(
+        shouldPlaySpecialSound ? "specialDragon" : getDragonSoundKey(tileName)
+      );
+
+      return;
+    }
+
+    if (isWind) {
+      playDrawAudio(shouldPlaySpecialSound ? "specialWind" : "wind");
+    }
+  }
+
+  useEffect(() => {
+    if (!latestMove?.id) return;
+
+    if (lastDrawSoundMoveIdRef.current === latestMove.id) {
+      return;
+    }
+
+    lastDrawSoundMoveIdRef.current = latestMove.id;
+
+    playDrawSoundForMove(latestMove);
+  }, [latestMove?.id, soundEnabled, roomId]);
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.code !== "Space") return;
@@ -163,15 +250,33 @@ export default function GamePage() {
   }, [gameRoom, roomId]);
 
   useEffect(() => {
-    const savedSetting = localStorage.getItem(TURN_SOUND_ENABLED_KEY);
+    const savedSetting = localStorage.getItem(SOUND_ENABLED_KEY);
 
     if (savedSetting === null) {
-      localStorage.setItem(TURN_SOUND_ENABLED_KEY, "true");
-      setTurnSoundEnabled(true);
+      localStorage.setItem(SOUND_ENABLED_KEY, "true");
+      setSoundEnabled(true);
       return;
     }
 
-    setTurnSoundEnabled(savedSetting === "true");
+    setSoundEnabled(savedSetting === "true");
+  }, []);
+
+  useEffect(() => {
+    drawAudioRefs.current = {
+      redDragon: new Audio("/sounds/red-dragon.mp3"),
+      greenDragon: new Audio("/sounds/green-dragon.mp3"),
+      whiteDragon: new Audio("/sounds/white-dragon.mp3"),
+      wind: new Audio("/sounds/wind.mp3"),
+      specialDragon: new Audio("/sounds/5-procent-dragon.mp3"),
+      specialWind: new Audio("/sounds/5-procent-wind.mp3"),
+    };
+
+    Object.values(drawAudioRefs.current).forEach((audio) => {
+      if (!audio) return;
+
+      audio.volume = 0.75;
+      audio.preload = "auto";
+    });
   }, []);
 
   useEffect(() => {
@@ -181,7 +286,7 @@ export default function GamePage() {
   }, []);
 
   useEffect(() => {
-    if (!gameRoom || !turnSoundEnabled) return;
+    if (!gameRoom || !soundEnabled) return;
 
     const myPlayerId = getPlayerIdForRoom(roomId);
 
@@ -226,7 +331,7 @@ export default function GamePage() {
     gameRoom?.currentPlayerId,
     gameRoom?.currentPlayerIndex,
     roomId,
-    turnSoundEnabled,
+    soundEnabled,
   ]);
 
   function showDrawnTilePreview(move: any) {
@@ -243,11 +348,11 @@ export default function GamePage() {
     }, 750);
   }
 
-  function handleToggleTurnSound() {
-    setTurnSoundEnabled((currentValue) => {
+  function handleToggleSound() {
+    setSoundEnabled((currentValue) => {
       const nextValue = !currentValue;
 
-      localStorage.setItem(TURN_SOUND_ENABLED_KEY, String(nextValue));
+      localStorage.setItem(SOUND_ENABLED_KEY, String(nextValue));
 
       return nextValue;
     });
@@ -433,10 +538,10 @@ export default function GamePage() {
           <div className="mb-3 flex justify-end">
             <button
               type="button"
-              onClick={handleToggleTurnSound}
+              onClick={handleToggleSound}
               className="rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
             >
-              {turnSoundEnabled ? "🔔" : "🔕"}
+              {soundEnabled ? "🔔" : "🔕"}
             </button>
           </div>
 
@@ -473,10 +578,10 @@ export default function GamePage() {
 
               <button
                 type="button"
-                onClick={handleToggleTurnSound}
+                onClick={handleToggleSound}
                 className="absolute right-4 top-4 rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                {turnSoundEnabled ? "🔔" : "🔕"}
+                {soundEnabled ? "🔔" : "🔕"}
               </button>
             </div>
 

@@ -428,14 +428,16 @@ export default function GamePage() {
           backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
         }}
       >
-        <button
-          type="button"
-          onClick={handleToggleTurnSound}
-          className="fixed right-4 top-4 z-[9999] rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
-        >
-          {turnSoundEnabled ? "🔔 Turn sound on" : "🔕 Turn sound off"}
-        </button>
-        
+        <div className="fixed right-4 top-4 z-[9999] flex gap-2">
+          <button
+            type="button"
+            onClick={handleToggleTurnSound}
+            className="fixed right-4 top-4 z-[9999] rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            {turnSoundEnabled ? "🔔" : "🔕"}
+          </button>
+        </div>
+
         <section className="lg:hidden">
           <MobileGameView
             gameRoom={gameRoom}

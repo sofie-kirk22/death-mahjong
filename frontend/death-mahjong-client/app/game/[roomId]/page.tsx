@@ -29,6 +29,8 @@ export default function GamePage() {
   const drawnTilePreviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const previousCurrentPlayerIdRef = useRef<string | null>(null);
+  const hasInitializedTurnSoundRef = useRef(false);
 
   useEffect(() => {
     async function loadRoom() {
@@ -154,6 +156,42 @@ export default function GamePage() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [gameRoom, roomId]);
+
+  useEffect(() => {
+    if (!gameRoom || typeof window === "undefined") return;
+
+    const myPlayerId = getPlayerIdForRoom(roomId);
+
+    if (!myPlayerId) return;
+
+    const currentPlayerId =
+      gameRoom.currentPlayerId ??
+      gameRoom.players?.[gameRoom.currentPlayerIndex]?.id ??
+      null;
+
+    if (!currentPlayerId) return;
+
+    const previousCurrentPlayerId = previousCurrentPlayerIdRef.current;
+    previousCurrentPlayerIdRef.current = currentPlayerId;
+
+    if (!hasInitializedTurnSoundRef.current) {
+      hasInitializedTurnSoundRef.current = true;
+      return;
+    }
+
+    const becameMyTurn =
+      currentPlayerId === myPlayerId &&
+      previousCurrentPlayerId !== currentPlayerId;
+
+    if (!becameMyTurn) return;
+
+    const audio = new Audio("/sounds/turn-gong.mp3");
+    audio.volume = 0.8;
+
+    void audio.play().catch(() => {
+      console.log("Turn sound could not play. Browser may require user interaction first.");
+    });
+  }, [gameRoom?.currentPlayerIndex, gameRoom?.currentPlayerId, roomId]);
 
   function showDrawnTilePreview(move: any) {
     if (!move?.tileName) return;

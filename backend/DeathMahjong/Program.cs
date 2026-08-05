@@ -581,6 +581,14 @@ app.MapPost("/api/gamerooms/{roomId}/draw-tile", async (
 
         if (gameRoom.HasEnded)
         {
+            if (roomEntity is not null)
+            {
+                roomEntity.HasEnded = true;
+                roomEntity.EndReason = gameRoom.EndReason?.ToString();
+                roomEntity.EndedAt = gameRoom.EndedAt;
+                roomEntity.EndedByPlayerId = gameRoom.EndedByPlayerId;
+            }
+            await db.SaveChangesAsync();
             await SaveCompletedGameAsync(gameRoom, db);
 
             await hubContext.Clients
@@ -607,7 +615,8 @@ app.MapPost("/api/gamerooms/{roomId}/abort", async (
     AbortGameRequest request,
     GameRoomStore gameRoomStore,
     GameEngine gameEngine,
-    IHubContext<GameHub> hubContext
+    IHubContext<GameHub> hubContext,
+    AppDbContext db
 ) =>
 {
     var gameRoom = gameRoomStore.GetByID(roomId);
@@ -619,6 +628,19 @@ app.MapPost("/api/gamerooms/{roomId}/abort", async (
     try
     {
         gameEngine.AbortGame(gameRoom, request.PlayerId);
+
+        var roomEntity = await db.GameRooms
+            .FirstOrDefaultAsync(room => room.Id == gameRoom.Id);
+
+        if (roomEntity is not null)
+        {
+            roomEntity.HasEnded = true;
+            roomEntity.EndReason = gameRoom.EndReason?.ToString();
+            roomEntity.EndedAt = gameRoom.EndedAt;
+            roomEntity.EndedByPlayerId = gameRoom.EndedByPlayerId;
+
+            await db.SaveChangesAsync();
+        }
 
         await hubContext.Clients.Group(roomId).SendAsync("GameEnded", new
         {

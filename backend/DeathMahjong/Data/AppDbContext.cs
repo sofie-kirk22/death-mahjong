@@ -34,6 +34,12 @@ public class AppDbContext : DbContext
 
             entity.Property(room => room.HostPlayerId)
                 .IsRequired();
+            
+            entity.Property(room => room.EndReason)
+                .HasMaxLength(50);
+
+            entity.Property(room => room.EndedByPlayerId)
+                .HasMaxLength(100);
         });
 
         modelBuilder.Entity<GamePlayerEntity>(entity =>

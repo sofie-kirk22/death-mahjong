@@ -1,3 +1,5 @@
+namespace DeathMahjong.Api.Dtos;
+
 public class CreateUserRequest
 {
     public string DisplayName { get; set; } = "";

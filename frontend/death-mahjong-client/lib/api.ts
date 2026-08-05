@@ -74,6 +74,30 @@ export async function recoverPlayer(
   return response.json();
 }
 
+export async function kickPlayer(
+  roomId: string,
+  hostPlayerId: string,
+  playerIdToKick: string
+) {
+  const response = await fetch(`${API_URL}/api/gamerooms/${roomId}/kick-player`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      hostPlayerId,
+      playerIdToKick,
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Could not remove player");
+  }
+
+  return response.json();
+}
+
 export async function startGame(roomId: string, playerId: string) {
   const response = await fetch(`${API_URL}/api/gamerooms/${roomId}/start`, {
     method: "POST",

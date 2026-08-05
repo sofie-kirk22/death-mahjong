@@ -316,6 +316,78 @@ app.MapPost("/api/gamerooms/{joinCode}/recover", (
     });
 });
 
+app.MapPost("/api/gamerooms/{roomId}/kick-player", async (
+    string roomId,
+    KickPlayerRequest request,
+    GameRoomStore gameRoomStore,
+    IHubContext<GameHub> hubContext,
+    AppDbContext db
+) =>
+{
+    var gameRoom = gameRoomStore.GetByID(roomId);
+
+    if (gameRoom is null)
+    {
+        return Results.NotFound("Game room not found.");
+    }
+
+    if (gameRoom.HasStarted)
+    {
+        return Results.BadRequest("Cannot remove players after the game has started.");
+    }
+
+    if (gameRoom.HasEnded)
+    {
+        return Results.BadRequest("Cannot remove players from an ended game.");
+    }
+
+    if (gameRoom.HostPlayerId != request.HostPlayerId)
+    {
+        return Results.BadRequest("Only the host can remove players.");
+    }
+
+    if (request.PlayerIdToKick == request.HostPlayerId)
+    {
+        return Results.BadRequest("The host cannot remove themselves.");
+    }
+
+    var playerToKick = gameRoom.Players
+        .FirstOrDefault(player => player.Id == request.PlayerIdToKick);
+
+    if (playerToKick is null)
+    {
+        return Results.NotFound("Player not found in this room.");
+    }
+
+    gameRoom.Players.Remove(playerToKick);
+
+    var playerEntity = await db.GamePlayers
+        .FirstOrDefaultAsync(player =>
+            player.Id == request.PlayerIdToKick &&
+            player.GameRoomId == gameRoom.Id
+        );
+
+    if (playerEntity is not null)
+    {
+        db.GamePlayers.Remove(playerEntity);
+        await db.SaveChangesAsync();
+    }
+
+    await hubContext.Clients.Group(gameRoom.Id).SendAsync("PlayerKicked", new
+    {
+        gameRoom,
+        kickedPlayerId = playerToKick.Id,
+        kickedPlayerName = playerToKick.DisplayName
+    });
+
+    return Results.Ok(new
+    {
+        gameRoom,
+        kickedPlayerId = playerToKick.Id,
+        kickedPlayerName = playerToKick.DisplayName
+    });
+});
+
 app.MapPost("/api/gamerooms/{roomId}/start", async (
     string roomId,
     StartGameRequest request,

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getRoom, startGame } from "@/lib/api";
+import { getRoom, kickPlayer, startGame } from "@/lib/api";
 import { createGameHubConnection } from "@/lib/gameHub";
 import { useParams, useRouter } from "next/navigation";
-import { getPlayerIdForRoom } from "@/lib/gameSession";
+import { clearGameSession, getPlayerIdForRoom } from "@/lib/gameSession";
 
 type RoomPageProps = {
   params: {
@@ -67,6 +67,28 @@ export default function RoomPage() {
 
           if (!updatedRoom?.id) {
             setError("PlayerJoined event did not contain a valid room.");
+            return;
+          }
+
+          setRoom(updatedRoom);
+        });
+
+        connection.on("PlayerKicked", (payload) => {
+          if (cancelled) return;
+
+          const updatedRoom = payload.gameRoom ?? payload.room ?? payload;
+          const kickedPlayerId = payload.kickedPlayerId;
+
+          if (!updatedRoom?.id) {
+            setError("PlayerKicked event did not contain a valid room.");
+            return;
+          }
+
+          const currentPlayerId = getPlayerIdForRoom(roomId);
+
+          if (currentPlayerId && kickedPlayerId === currentPlayerId) {
+            clearGameSession(roomId);
+            router.push("/");
             return;
           }
 
@@ -155,6 +177,41 @@ export default function RoomPage() {
       router.push(`/game/${roomId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start game");
+    }
+  }
+
+  async function handleKickPlayer(playerToKick: any) {
+    try {
+      setError("");
+
+      const hostPlayerId = getPlayerIdForRoom(roomId);
+
+      if (!hostPlayerId) {
+        throw new Error("Missing host player id.");
+      }
+
+      if (!isHost) {
+        throw new Error("Only the host can remove players.");
+      }
+
+      const confirmed = window.confirm(
+        `Remove ${playerToKick.displayName} from the lobby?`
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const result = await kickPlayer(roomId, hostPlayerId, playerToKick.id);
+      const updatedRoom = result.gameRoom ?? result.room ?? result;
+
+      if (!updatedRoom?.id) {
+        throw new Error("Kick response did not contain a valid room.");
+      }
+
+      setRoom(updatedRoom);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not remove player");
     }
   }
 
@@ -278,7 +335,7 @@ export default function RoomPage() {
                     <span className="font-medium">{player.displayName}</span>
                   </div>
 
-                  <div className="flex gap-1.5">
+                  <div className="flex items-center gap-1.5">
                     {playerIsMe && (
                       <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-900 dark:bg-amber-500/20 dark:text-amber-200">
                         You
@@ -289,6 +346,16 @@ export default function RoomPage() {
                       <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                         Host
                       </span>
+                    )}
+
+                    {isHost && !playerIsHost && !playerIsMe && !gameRoom.hasStarted && (
+                      <button
+                        type="button"
+                        onClick={() => handleKickPlayer(player)}
+                        className="rounded-full border border-red-300 bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700 transition hover:bg-red-100 dark:border-red-700 dark:bg-red-950 dark:text-red-200 dark:hover:bg-red-900"
+                      >
+                        Remove
+                      </button>
                     )}
                   </div>
                 </li>

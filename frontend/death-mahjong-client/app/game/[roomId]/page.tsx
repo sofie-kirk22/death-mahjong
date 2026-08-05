@@ -29,8 +29,13 @@ export default function GamePage() {
   const drawnTilePreviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const TURN_SOUND_ENABLED_KEY = "deathMahjongTurnSoundEnabled";
+
+  const [turnSoundEnabled, setTurnSoundEnabled] = useState(true);
+
   const previousCurrentPlayerIdRef = useRef<string | null>(null);
   const hasInitializedTurnSoundRef = useRef(false);
+  const turnAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     async function loadRoom() {
@@ -158,7 +163,25 @@ export default function GamePage() {
   }, [gameRoom, roomId]);
 
   useEffect(() => {
-    if (!gameRoom || typeof window === "undefined") return;
+    const savedSetting = localStorage.getItem(TURN_SOUND_ENABLED_KEY);
+
+    if (savedSetting === null) {
+      localStorage.setItem(TURN_SOUND_ENABLED_KEY, "true");
+      setTurnSoundEnabled(true);
+      return;
+    }
+
+    setTurnSoundEnabled(savedSetting === "true");
+  }, []);
+
+  useEffect(() => {
+    turnAudioRef.current = new Audio("/sounds/turn-gong.mp3");
+    turnAudioRef.current.volume = 0.65;
+    turnAudioRef.current.preload = "auto";
+  }, []);
+
+  useEffect(() => {
+    if (!gameRoom || !turnSoundEnabled) return;
 
     const myPlayerId = getPlayerIdForRoom(roomId);
 
@@ -172,12 +195,14 @@ export default function GamePage() {
     if (!currentPlayerId) return;
 
     const previousCurrentPlayerId = previousCurrentPlayerIdRef.current;
-    previousCurrentPlayerIdRef.current = currentPlayerId;
 
     if (!hasInitializedTurnSoundRef.current) {
+      previousCurrentPlayerIdRef.current = currentPlayerId;
       hasInitializedTurnSoundRef.current = true;
       return;
     }
+
+    previousCurrentPlayerIdRef.current = currentPlayerId;
 
     const becameMyTurn =
       currentPlayerId === myPlayerId &&
@@ -185,13 +210,24 @@ export default function GamePage() {
 
     if (!becameMyTurn) return;
 
-    const audio = new Audio("/sounds/turn-gong.mp3");
-    audio.volume = 0.8;
+    const audio = turnAudioRef.current;
+
+    if (!audio) return;
+
+    audio.currentTime = 0;
 
     void audio.play().catch(() => {
-      console.log("Turn sound could not play. Browser may require user interaction first.");
+      console.log(
+        "Turn sound could not play. Browser may require user interaction first."
+      );
     });
-  }, [gameRoom?.currentPlayerIndex, gameRoom?.currentPlayerId, roomId]);
+  }, [
+    gameRoom,
+    gameRoom?.currentPlayerId,
+    gameRoom?.currentPlayerIndex,
+    roomId,
+    turnSoundEnabled,
+  ]);
 
   function showDrawnTilePreview(move: any) {
     if (!move?.tileName) return;
@@ -205,6 +241,16 @@ export default function GamePage() {
     drawnTilePreviewTimeoutRef.current = setTimeout(() => {
       setDrawnTilePreview(null);
     }, 750);
+  }
+
+  function handleToggleTurnSound() {
+    setTurnSoundEnabled((currentValue) => {
+      const nextValue = !currentValue;
+
+      localStorage.setItem(TURN_SOUND_ENABLED_KEY, String(nextValue));
+
+      return nextValue;
+    });
   }
 
   async function handleDrawTile(tileId: string) {
@@ -382,6 +428,14 @@ export default function GamePage() {
           backgroundImage: "url('/images/backgrounds/DarkBackground.png')",
         }}
       >
+        <button
+          type="button"
+          onClick={handleToggleTurnSound}
+          className="fixed right-4 top-4 z-[9999] rounded-full border border-slate-300 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-md backdrop-blur transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          {turnSoundEnabled ? "🔔 Turn sound on" : "🔕 Turn sound off"}
+        </button>
+        
         <section className="lg:hidden">
           <MobileGameView
             gameRoom={gameRoom}

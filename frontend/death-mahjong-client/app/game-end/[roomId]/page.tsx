@@ -213,6 +213,27 @@ export default function GameEndPage() {
                         </section>
 
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <h2 className="mb-4 text-xl font-semibold">Winds drawn</h2>
+
+                            <ul className="space-y-3">
+                                {[...playerSummaries]
+                                    .sort((a: any, b: any) => (b.windCount ?? 0) - (a.windCount ?? 0))
+                                    .map((summary: any) => (
+                                        <li
+                                            key={summary.playerId}
+                                            className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
+                                        >
+                                            <p className="font-semibold">{summary.playerName}</p>
+
+                                            <p className="text-2xl font-bold">
+                                                {summary.windCount ?? 0}
+                                            </p>
+                                        </li>
+                                    ))}
+                            </ul>
+                        </section>
+
+                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                             <h2 className="mb-4 text-xl font-semibold">Game stats</h2>
 
                             <div className="grid grid-cols-2 gap-3">

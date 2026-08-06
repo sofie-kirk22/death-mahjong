@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { abortGame, drawTile, getRoom } from "@/lib/api";
@@ -47,26 +47,92 @@ export default function GamePage() {
     specialWind: null,
   });
 
-  useEffect(() => {
-    async function loadRoom() {
+  const refreshGameRoom = useCallback(
+    async (showError = false) => {
+      if (!roomId) return;
+
       try {
         const data = await getRoom(roomId);
-        setRoom(data);
+        const updatedRoom = data.gameRoom ?? data.room ?? data;
+
+        if (!updatedRoom?.id) {
+          throw new Error("Room response did not contain a valid game room.");
+        }
+
+        setRoom(updatedRoom);
+
+        if (updatedRoom.hasEnded) {
+          const isAbortEnd =
+            updatedRoom.endReason === "AbortEnd" ||
+            updatedRoom.endReason === 2;
+
+          if (isAbortEnd) {
+            clearGameSession(updatedRoom.id);
+            router.push("/");
+          } else {
+            router.push(`/game-end/${updatedRoom.id}`);
+          }
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not load game end");
+        if (showError) {
+          setError(err instanceof Error ? err.message : "Could not refresh game");
+        } else {
+          console.warn("Could not refresh game state", err);
+        }
+      }
+    },
+    [roomId, router]
+  );
+
+  useEffect(() => {
+    void refreshGameRoom(true);
+  }, [refreshGameRoom]);
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void refreshGameRoom(false);
       }
     }
 
-    if (roomId) {
-      loadRoom();
+    function handleFocus() {
+      void refreshGameRoom(false);
     }
-  }, [roomId]);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refreshGameRoom]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void refreshGameRoom(false);
+    }, 20_000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [refreshGameRoom]);
 
   useEffect(() => {
     if (!roomId) return;
 
     const connection = createGameHubConnection();
     let cancelled = false;
+
+    connection.onreconnected(async () => {
+      try {
+        await connection.invoke("JoinRoomGroup", roomId);
+      } catch {
+        // Ignore regroup error; refresh still helps
+      }
+
+      void refreshGameRoom(false);
+    });
 
     async function connect() {
       try {
@@ -138,7 +204,7 @@ export default function GamePage() {
         connection.stop();
       }
     };
-  }, [roomId, router]);
+  }, [roomId, router, refreshGameRoom]);
 
   useEffect(() => {
     return () => {

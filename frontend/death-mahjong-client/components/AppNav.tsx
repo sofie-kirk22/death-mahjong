@@ -37,6 +37,10 @@ export default function AppNav() {
                     <NavLink href="/profile" active={pathname === "/profile"}>
                         Profile
                     </NavLink>
+
+                    <NavLink href="/privacy" active={pathname === "/privacy"}>
+                        Privacy
+                    </NavLink>
                 </div>
             </div>
         </nav>

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "frontend/death-mahjong-client", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "death-mahjong-backend",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "backend/DeathMahjong", "--launch-profile", "http"],
+      "port": 5156
     }
   ]
 }

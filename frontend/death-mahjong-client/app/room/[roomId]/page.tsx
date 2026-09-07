@@ -21,7 +21,8 @@ export default function RoomPage() {
   const [gameRoom, setRoom] = useState<any>(null);
   const [error, setError] = useState("");
 
-  const myPlayerId = getPlayerIdForRoom(roomId);
+  const myPlayerId =
+    typeof window !== "undefined" ? getPlayerIdForRoom(roomId) : null;
 
   const me = myPlayerId
     ? gameRoom?.players?.find((player: any) => player.id === myPlayerId)

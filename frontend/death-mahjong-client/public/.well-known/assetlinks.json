@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.deathmahjong.app",
+    "sha256_cert_fingerprints": ["9D:08:51:52:34:C6:64:F4:AF:CF:FB:88:0F:C6:62:F2:12:60:8F:27:D0:23:40:D3:FC:18:5E:94:09:0D:22:0A"]
+  }
+}]

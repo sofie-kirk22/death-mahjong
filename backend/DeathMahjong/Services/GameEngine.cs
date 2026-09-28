@@ -144,8 +144,8 @@ public class GameEngine
 
     public List<Tile> GetTilesFromJson()
     {
-        var fileName = "tiles.json"; 
-        //var fileName = "tilesTest.json"; // Temporary test file with fewer tiles for easier debugging
+        //var fileName = "tiles.json"; 
+        var fileName = "tilesTest.json"; // Temporary test file with fewer tiles for easier debugging
         var filePath = Path.Combine(AppContext.BaseDirectory, "Data", fileName);
 
         if (!File.Exists(filePath))
